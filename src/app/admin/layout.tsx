@@ -5,7 +5,7 @@ import React from 'react'
 import { ToastContainer } from 'react-toastify';
 
 export const metadata: Metadata = {
-  title: "Admin | IEEE JGEC Student Branch"
+  title: "Admin | IEEE Student Branch JGEC"
 };
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

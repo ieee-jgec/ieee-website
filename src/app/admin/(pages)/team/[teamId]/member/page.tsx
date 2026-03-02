@@ -29,6 +29,7 @@ export default function MemberAddPage() {
     "EE Department",
     "ME Department",
     "CIVIL Department",
+    "PRINCIPAL",
   ];
 
   const router = useRouter();
@@ -328,8 +329,8 @@ export default function MemberAddPage() {
                 ? "Creating..."
                 : "Add Member"
               : isLoading
-              ? "Saving..."
-              : "Save Changes"}
+                ? "Saving..."
+                : "Save Changes"}
           </Button>
         </div>
         <ImageCropper
@@ -435,7 +436,7 @@ async function getCroppedImg(imageSrc: string, crop: any): Promise<Blob> {
     0,
     0,
     crop.width,
-    crop.height
+    crop.height,
   );
 
   return new Promise((resolve) => {

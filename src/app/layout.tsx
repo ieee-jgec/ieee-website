@@ -28,8 +28,8 @@ const ubuntu = Ubuntu({
 });
 
 export const metadata: Metadata = {
-  title: "IEEE JGEC Student Branch",
-  description: "Welcome to IEEE JGEC Student Branch — inspiring innovation, empowering learners, and building a community of tech enthusiasts at JGEC."
+  title: "IEEE Student Branch JGEC",
+  description: "Welcome to IEEE Student Branch JGEC — inspiring innovation, empowering learners, and building a community of tech enthusiasts at JGEC."
 };
 
 export default function RootLayout({

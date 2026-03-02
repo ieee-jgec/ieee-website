@@ -87,7 +87,7 @@ export const Footer = () => {
       </div>
       <div className="text-center w-full border-t-1 border-gray-700 pt-12">
         <p className="text-gray-400 text-sm">
-          &copy; {new Date().getFullYear()} IEEE JGEC Student Branch. All rights
+          &copy; {new Date().getFullYear()} IEEE Student Branch JGEC. All rights
           reserved.
         </p>
       </div>
