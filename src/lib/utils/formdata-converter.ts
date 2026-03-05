@@ -1,25 +1,25 @@
 export function objectToFormData(obj: Record<string, any>): FormData {
-    const formData = new FormData();
+  const formData = new FormData();
 
-    Object.entries(obj).forEach(([key, value]) => {
-        if (value instanceof File) {
-            // Handle file inputs
-            formData.append(key, value);
-        } else if (Array.isArray(value)) {
-            // Handle arrays
-            value.forEach((v, i) => {
-                formData.append(`${key}[${i}]`, v);
-            });
-        } else if (typeof value === 'object' && value !== null) {
-            // Handle nested objects
-            formData.append(key, JSON.stringify(value));
-        } else if (value !== undefined && value !== null) {
-            // Handle primitive values
-            formData.append(key, String(value));
-        }
-    });
+  Object.entries(obj).forEach(([key, value]) => {
+    if (value instanceof File) {
+      // Handle file inputs
+      formData.append(key, value);
+    } else if (Array.isArray(value)) {
+      // Handle arrays
+      value.forEach((v, i) => {
+        formData.append(`${key}[${i}]`, v);
+      });
+    } else if (typeof value === "object" && value !== null) {
+      // Handle nested objects
+      formData.append(key, JSON.stringify(value));
+    } else if (value !== undefined && value !== null) {
+      // Handle primitive values
+      formData.append(key, String(value));
+    }
+  });
 
-    return formData;
+  return formData;
 }
 
 export function formDataToJson(formData: FormData): Record<string, any> {
@@ -46,4 +46,3 @@ export function formDataToJson(formData: FormData): Record<string, any> {
 
   return object;
 }
-

@@ -52,9 +52,9 @@ export const createEvent = asyncHandler(
     });
 
     return NextResponse.json(
-      new ApiResponse(200, { eventId: event?._id }, "Event created")
+      new ApiResponse(200, { eventId: event?._id }, "Event created"),
     );
-  }
+  },
 );
 
 // fetch the event
@@ -68,7 +68,7 @@ export const getEvent = asyncHandler(
     const event = await Event.findById(eventId);
 
     return NextResponse.json(new ApiResponse(200, event, "Event fetched"));
-  }
+  },
 );
 
 // update event
@@ -96,8 +96,6 @@ export const updateEvent = asyncHandler(
     let thumbnailUrl = "";
     const thumbnail = files?.thumbnail;
     if (thumbnail && thumbnail instanceof File) {
-      console.log("Uploading image");
-
       const buffer = Buffer.from(await thumbnail.arrayBuffer());
       thumbnailUrl = (await uploadToCloudinary(buffer, thumbnail.name)).url;
     }
@@ -115,7 +113,7 @@ export const updateEvent = asyncHandler(
         fee,
         deadline,
       },
-      { new: true }
+      { new: true },
     );
 
     // update thumbnail
@@ -131,9 +129,9 @@ export const updateEvent = asyncHandler(
     await event.save();
 
     return NextResponse.json(
-      new ApiResponse(200, { eventId: event?._id }, "Event updated")
+      new ApiResponse(200, { eventId: event?._id }, "Event updated"),
     );
-  }
+  },
 );
 
 // remove the event
@@ -147,7 +145,7 @@ export const deleteEvent = asyncHandler(
     await Event.findByIdAndDelete(eventId);
 
     return NextResponse.json(new ApiResponse(200, {}, "Event removed"));
-  }
+  },
 );
 
 // fetch all events
@@ -156,5 +154,5 @@ export const getAllEvents = asyncHandler(
     const events = await Event.find().sort({ createdAt: -1 });
 
     return NextResponse.json(new ApiResponse(200, events, "Events fetched"));
-  }
+  },
 );

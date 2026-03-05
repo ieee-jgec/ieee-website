@@ -12,6 +12,10 @@ export const SideNav = () => {
             path: "/dashboard",
         },
         {
+            title: "Manage Notices",
+            path: "/notices",
+        },
+        {
             title: "Manage Team",
             path: "/team",
         },

@@ -56,7 +56,7 @@ export const Input = ({ placeholder, value, type = 'text', onChange, id, require
         <div className={clsx('w-full py-1 h-fit flex items-center relative border border-gray-400 focus-within:border-[var(--primary)] focus-within:ring-[var(--accent)] focus-within:ring-[1px] rounded-2xl transition-all duration-150 overflow-hidden', className)}>
             <label
                 htmlFor={uid}
-                className={clsx('absolute ml-3 transition-all duration-200 px-1 text-foreground cursor-text z-1 origin-left', (isFocused || input != "") && '!text-[var(--primary)] -translate-y-3 scale-80', placeholderClass)}>
+                className={clsx('absolute ml-3 transition-all duration-200 px-1 text-gray-500 cursor-text z-1 origin-left', (isFocused || input != "") && '!text-[var(--primary)] -translate-y-3 scale-80', placeholderClass)}>
                 {placeholder}
             </label>
             <input

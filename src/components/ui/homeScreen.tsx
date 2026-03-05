@@ -168,11 +168,11 @@ export default function IEEEInteractiveCanvas() {
           0,
           this.x,
           this.y,
-          this.size * 3
+          this.size * 3,
         );
         gradient.addColorStop(
           0,
-          `rgba(59, 130, 246, ${this.glowIntensity * 0.5})`
+          `rgba(59, 130, 246, ${this.glowIntensity * 0.5})`,
         );
         gradient.addColorStop(1, "rgba(59, 130, 246, 0)");
         ctxRef_inner.fillStyle = gradient;
@@ -194,7 +194,7 @@ export default function IEEEInteractiveCanvas() {
           this.y - 1,
           this.size * 0.4,
           0,
-          Math.PI * 2
+          Math.PI * 2,
         );
         ctxRef_inner.fill();
       }
@@ -231,7 +231,7 @@ export default function IEEEInteractiveCanvas() {
           0,
           x,
           y,
-          this.size * 2
+          this.size * 2,
         );
         gradient.addColorStop(0, "rgba(96, 165, 250, 1)");
         gradient.addColorStop(0.5, "rgba(59, 130, 246, 0.6)");
@@ -347,7 +347,7 @@ export default function IEEEInteractiveCanvas() {
             -this.size / 2,
             -this.size / 2,
             this.size,
-            this.size
+            this.size,
           );
         }
 
@@ -383,7 +383,7 @@ export default function IEEEInteractiveCanvas() {
 
       update(
         particles: CollisionParticle[],
-        collisionEffects: CollisionSpark[]
+        collisionEffects: CollisionSpark[],
       ) {
         this.x += this.vx;
         this.y += this.vy;
@@ -398,7 +398,7 @@ export default function IEEEInteractiveCanvas() {
           this.vx *= -0.9;
           this.x = Math.max(
             this.size,
-            Math.min(canvasRef_inner.width - this.size, this.x)
+            Math.min(canvasRef_inner.width - this.size, this.x),
           );
         }
         if (
@@ -408,7 +408,7 @@ export default function IEEEInteractiveCanvas() {
           this.vy *= -0.9;
           this.y = Math.max(
             this.size,
-            Math.min(canvasRef_inner.height - this.size, this.y)
+            Math.min(canvasRef_inner.height - this.size, this.y),
           );
         }
 
@@ -486,23 +486,23 @@ export default function IEEEInteractiveCanvas() {
           0,
           this.x,
           this.y,
-          this.size
+          this.size,
         );
         gradient.addColorStop(
           0,
           `rgba(${this.color[0]}, ${this.color[1]}, ${this.color[2]}, ${
             fadeOpacity + flashBoost
-          })`
+          })`,
         );
         gradient.addColorStop(
           0.5,
           `rgba(${this.color[0]}, ${this.color[1]}, ${this.color[2]}, ${
             (fadeOpacity + flashBoost) * 0.6
-          })`
+          })`,
         );
         gradient.addColorStop(
           1,
-          `rgba(${this.color[0]}, ${this.color[1]}, ${this.color[2]}, 0)`
+          `rgba(${this.color[0]}, ${this.color[1]}, ${this.color[2]}, 0)`,
         );
 
         ctxRef_inner.fillStyle = gradient;
@@ -532,7 +532,7 @@ export default function IEEEInteractiveCanvas() {
             this.y,
             this.size * (2 - this.collisionFlash),
             0,
-            Math.PI * 2
+            Math.PI * 2,
           );
           ctxRef_inner.stroke();
         }
@@ -590,7 +590,7 @@ export default function IEEEInteractiveCanvas() {
               0,
               p.x,
               p.y,
-              3
+              3,
             );
             gradient.addColorStop(0, `rgba(255, 255, 255, ${p.life * 0.8})`);
             gradient.addColorStop(0.5, `rgba(147, 197, 253, ${p.life * 0.5})`);
@@ -714,7 +714,7 @@ export default function IEEEInteractiveCanvas() {
         0,
         0,
         canvasRef_inner.width,
-        canvasRef_inner.height
+        canvasRef_inner.height,
       );
 
       // Update and draw geometric shapes first (behind everything)
@@ -761,7 +761,7 @@ export default function IEEEInteractiveCanvas() {
             node.x,
             node.y,
             target.x,
-            target.y
+            target.y,
           );
           gradient.addColorStop(0, "rgba(148, 163, 184, 0.3)");
           gradient.addColorStop(0.5, "rgba(100, 116, 139, 0.4)");
@@ -930,7 +930,7 @@ export default function IEEEInteractiveCanvas() {
                     <p
                       className={clsx(
                         "text-2xl text-slate-500",
-                        bungeeFont.className
+                        bungeeFont.className,
                       )}
                     >
                       Student Branch{" "}
@@ -950,9 +950,9 @@ export default function IEEEInteractiveCanvas() {
                     <Button
                       variant="outline"
                       className="px-10 py-5 max-sm:p-5 bg-white text-blue-600 font-semibold rounded-lg border-2 !border-blue-600 hover:bg-blue-50 transition-all duration-300 hover:shadow-lg justify-center"
-                      onClick={() => router.push("/contact")}
+                      onClick={() => router.push("/notices")}
                     >
-                      Join Community
+                      View Announcements
                     </Button>
                   </div>
                 </div>

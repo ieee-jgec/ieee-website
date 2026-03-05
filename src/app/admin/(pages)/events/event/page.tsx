@@ -1,16 +1,13 @@
 "use client";
 
-import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PopupBox } from "@/components/ui/popupBox";
 import { TextArea } from "@/components/ui/textArea";
 import { objectToFormData } from "@/lib/utils/formdata-converter";
 import axios from "axios";
-import { Camera, Image, ImagePlus } from "lucide-react";
+import { ImagePlus } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { Suspense, useCallback, useEffect, useState } from "react";
-import Cropper, { Area } from "react-easy-crop";
+import { Suspense, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 export default function EventAddPage() {
@@ -311,8 +308,8 @@ export default function EventAddPage() {
                 ? "Creating..."
                 : "Create Event"
               : isLoading
-              ? "Saving..."
-              : "Save Event"}
+                ? "Saving..."
+                : "Save Event"}
           </Button>
         </div>
       </div>

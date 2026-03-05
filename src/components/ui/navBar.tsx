@@ -54,6 +54,10 @@ export default function NavBar({
       label: "Team",
     },
     {
+      key: "notices",
+      label: "Notices",
+    },
+    {
       key: "contact",
       label: "Contact",
     },
@@ -70,12 +74,12 @@ export default function NavBar({
       <div
         className={clsx(
           "w-full flex items-center justify-between px-2 py-1 bg-white/50 backdrop-blur-2xl text-[var(--foreground)] border-b-2 border-[var(--primary)] transition-transform duration-300",
-          className
+          className,
         )}
       >
         {/* IEEE logo and name */}
         <Link href={"/"}>
-          <FullLogoComponent size={185}/>
+          <FullLogoComponent size={185} />
         </Link>
         {/* other navigation options */}
         <div className="flex items-center justify-center gap-1 max-md:hidden">
@@ -89,7 +93,7 @@ export default function NavBar({
                 key={opt.key}
                 className={clsx(
                   "p-2 text-gray-600",
-                  currentPage === opt.key && "!text-foreground"
+                  currentPage === opt.key && "!text-foreground",
                 )}
                 onClick={() => handleLinkClick(`/${opt.key}`)}
               >
@@ -98,7 +102,7 @@ export default function NavBar({
               <div
                 className={clsx(
                   "overflow-hidden flex items-center gap-[1px] w-0 h-1 absolute transition-all duration-400 rounded-t-2xl",
-                  currentPage === opt.key && "w-17"
+                  currentPage === opt.key && "w-17",
                 )}
               >
                 <div className="flex-1 bg-blue-600 w-full h-full" />
@@ -179,7 +183,7 @@ const NavDropDown = ({
     <div
       className={clsx(
         "transition-all duration-200 absolute z-50 w-full left-0 top-[60px] overflow-hidden",
-        isOpen ? "max-h-100" : "max-h-0"
+        isOpen ? "max-h-100" : "max-h-0",
       )}
       ref={listRef}
     >
@@ -191,7 +195,7 @@ const NavDropDown = ({
               key={opt.key}
               className={clsx(
                 "p-2 text-gray-600 w-full",
-                currentPage === opt.key && "!text-foreground"
+                currentPage === opt.key && "!text-foreground",
               )}
               onClick={() => handleLinkClick(`/${opt.key}`)}
             >
