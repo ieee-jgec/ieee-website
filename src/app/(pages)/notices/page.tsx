@@ -1,9 +1,11 @@
 "use client";
 
+import { Card } from "@/components/ui/card";
 import { NoticeCard } from "@/components/ui/NoticeCard";
 import { SlideUpAnimation } from "@/components/ui/sectionAnimation";
 import { useStore } from "@/context/storeContext";
 import axios from "axios";
+import clsx from "clsx";
 import { Pin, ScrollText } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -34,7 +36,7 @@ export default function NoticePage() {
             }, 1000);
           }
         });
-      } catch (error) {}
+      } catch (error) { }
     })();
   }, []);
 
@@ -52,7 +54,7 @@ export default function NoticePage() {
             }, 1000);
           }
         });
-      } catch (error) {}
+      } catch (error) { }
     })();
   }, []);
 
@@ -68,27 +70,32 @@ export default function NoticePage() {
       </div>
 
       <div className="max-w-7xl mx-auto mb-12 px-4">
-        {noticeData?.pinnedNotices?.length ? (
-          <div className="mb-10">
-            <div className="flex items-center gap-4 mb-6 text-gray-700">
-              <Pin className="text-blue-500" />
-              <h2 className="text-2xl">Pinned Notices</h2>
+        {noticeData ?
+          noticeData?.pinnedNotices?.length ? (
+            <div className="mb-10">
+              <div className="flex items-center gap-4 mb-6 text-gray-700">
+                <Pin className="text-blue-500" />
+                <h2 className="text-2xl">Pinned Notices</h2>
+              </div>
+              <div className="space-y-3">
+                {noticeData.pinnedNotices?.map((notice: any, index: number) => (
+                  <SlideUpAnimation
+                    delay={(index * 1.5) / 10}
+                    key={index}
+                    className="w-full"
+                  >
+                    <NoticeCard notice={notice} />
+                  </SlideUpAnimation>
+                ))}
+              </div>
             </div>
-            <div className="space-y-3">
-              {noticeData.pinnedNotices?.map((notice: any, index: number) => (
-                <SlideUpAnimation
-                  delay={(index * 1.5) / 10}
-                  key={index}
-                  className="w-full"
-                >
-                  <NoticeCard notice={notice} />
-                </SlideUpAnimation>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <></>
-        )}
+          ) : (
+            <></>
+          ) :
+          Array(3).fill(0).map((_,index) => {
+            return <SkeletonNoticeCard key={index}/>
+          })
+        }
 
         {noticeData?.unPinnedNotices?.length ? (
           <div>
@@ -114,4 +121,30 @@ export default function NoticePage() {
       </div>
     </div>
   );
+};
+
+const SkeletonNoticeCard = () => {
+  return (
+    <Card
+      className={clsx(
+        "!max-w-full p-6 !border-l-3",
+        "!border-l-blue-400 mb-5",
+
+      )}
+    >
+      <div className="animate-pulse">
+        <div className="flex items-start gap-3">
+          <h3 className="text-xl font-semibold text-gray-700 w-50 h-5 bg-gray-300"></h3>
+        </div>
+
+        <p className="mt-1 text-sm text-gray-500 flex items-center gap-1 w-25 h-5 bg-gray-400"></p>
+        <p className="mt-3 bg-gray-300 h-4 w-[95%]"></p>
+        <p className="mt-1 bg-gray-300 h-4 w-[75%]"></p>
+        <p className="mt-1 bg-gray-300 h-4 w-[90%]"></p>
+        <p className="mt-1 bg-gray-300 h-4 w-[88%]"></p>
+
+        <span className="bg-gray-200 h-5 w-10"></span>
+      </div>
+    </Card>
+  )
 }
