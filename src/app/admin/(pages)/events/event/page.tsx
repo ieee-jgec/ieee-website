@@ -1,5 +1,6 @@
 "use client";
 
+import { useGetEventByIdQuery } from "@/app/admin/features/event/eventApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TextArea } from "@/components/ui/textArea";
@@ -42,20 +43,32 @@ export default function EventAddPage() {
   };
 
   // fetch the event
+  // useEffect(() => {
+  //   (async () => {
+  //     if (!eventId || tab != "edit") return;
+  //     try {
+  //       await axios.get(`/api/event/get?id=${eventId}`).then((res) => {
+  //         const data = res.data.data;
+  //         if (data) setFormData(data);
+  //         setPreviewUrl(data?.thumbnail);
+  //       });
+  //     } catch (error) {
+  //       toast.error("Faild to fetch event");
+  //     }
+  //   })();
+  // }, [tab, eventId]);
+
+  const { isFetching, data } = useGetEventByIdQuery(eventId, {
+    refetchOnMountOrArgChange: false
+  })
+  const eventData = data?.data
+
   useEffect(() => {
-    (async () => {
-      if (!eventId || tab != "edit") return;
-      try {
-        await axios.get(`/api/event/get?id=${eventId}`).then((res) => {
-          const data = res.data.data;
-          if (data) setFormData(data);
-          setPreviewUrl(data?.thumbnail);
-        });
-      } catch (error) {
-        toast.error("Faild to fetch event");
-      }
-    })();
-  }, [tab, eventId]);
+    if (!eventId || tab != "edit") return;
+    if (eventData) setFormData(eventData)
+    setPreviewUrl(eventData?.thumbnail);
+  }, [eventId, tab, eventData])
+
 
   // handle preview image
   useEffect(() => {
@@ -89,7 +102,7 @@ export default function EventAddPage() {
     }
   };
 
-  // create new event
+  // edit event
   const handleEditEvent = async () => {
     try {
       const data = {

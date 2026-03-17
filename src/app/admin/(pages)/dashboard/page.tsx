@@ -6,6 +6,7 @@ import axios from "axios";
 import clsx from "clsx";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { useGetMessagesQuery } from "../../features/message/messageApi";
 
 const notificationOptions = [
   {
@@ -28,25 +29,11 @@ const notificationOptions = [
 
 export default function AdminDashboardPage() {
   const [filter, setFilter] = useState("all");
-
   // get messages based on filter
-  const [messageList, setMessageList] = useState<Record<string, any>[] | null>(
-    null
-  );
-
-  useEffect(() => {
-    (async () => {
-      try {
-        setMessageList(null);
-        await axios
-          .get(`/api/message/get-list?filter=${filter}`)
-          .then((res) => {
-            const data = res.data.data;
-            if (data) setMessageList(data);
-          });
-      } catch (error) {}
-    })();
-  }, [filter]);
+  const { isFetching, data } = useGetMessagesQuery(filter, {
+    refetchOnMountOrArgChange: false
+  })
+  const messageList = data?.data ?? [];
 
   return (
     <div>
@@ -72,9 +59,9 @@ export default function AdminDashboardPage() {
           ))}
         </ul>
         <div className="space-y-3">
-          {!messageList && <p>Loading messages...</p>}
-          {messageList?.length === 0 && <p>No messages found!</p>}
-          {messageList?.map((message: any, index: number) => (
+          {isFetching && <p>Loading messages...</p>}
+          {!isFetching && messageList?.length === 0 && <p>No messages found!</p>}
+          {!isFetching && messageList?.map((message: any, index: number) => (
             <MessageComponent key={index} message={message} />
           ))}
         </div>
@@ -97,7 +84,7 @@ const MessageComponent = ({ message }: { message: Record<string, any> }) => {
           setMark(newMark);
           toast.success("Message marked");
         });
-    } catch (error) {}
+    } catch (error) { }
   };
   return (
     <div

@@ -3,9 +3,10 @@ import { AuthProvider } from '@/context/authContext';
 import { Metadata } from 'next';
 import React from 'react'
 import { ToastContainer } from 'react-toastify';
+import Providers from './provider';
 
 export const metadata: Metadata = {
-  title: "Admin | IEEE Student Branch JGEC"
+    title: "Admin | IEEE Student Branch JGEC"
 };
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -18,11 +19,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </div>
                 <div className='flex'>
                     {/* admin nav section */}
-                    <SideNav />
+                    <Providers>
+                        <SideNav />
 
-                    <div className='flex-1 w-full min-h-[calc(100vh-44px)] p-3'>
-                        {children}
-                    </div>
+                        <div className='flex-1 w-full min-h-[calc(100vh-44px)] p-3'>
+                            {children}
+                        </div>
+                    </Providers>
                 </div>
                 <ToastContainer
                     autoClose={2500}

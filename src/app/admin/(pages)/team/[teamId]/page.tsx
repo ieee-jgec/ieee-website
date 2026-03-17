@@ -1,5 +1,6 @@
 "use client";
 
+import { useGetMemberListQuery, useGetTeamByIdQuery } from '@/app/admin/features/team/teamApi';
 import { Avatar } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,27 +18,41 @@ export default function TeamEditPage() {
     const teamId = params.teamId;
 
 
+    // fetch team
+    const { data: teamData } = useGetTeamByIdQuery(teamId, {
+        refetchOnMountOrArgChange: false
+    });
+    const teamDataInfo = teamData?.data ?? {};
+
     const [isTeamUpdating, setIsTeamUpdating] = useState(false);
     const [teamName, setTeamName] = useState("");
     const [teamType, setTeamType] = useState("");
-    // fetch team
-    useEffect(() => {
-        (async () => {
-            if (!teamId) return;
-            try {
-                await axios.get(`/api/team/get?id=${teamId}`)
-                    .then(res => {
-                        const data = res.data.data;
-                        if (data) {
-                            setTeamName(data?.title);
-                            setTeamType(data?.teamType);
-                        }
-                    })
-            } catch (error) {
 
-            }
-        })();
-    }, [teamId]);
+    useEffect(() => {
+        if (teamData?.data) {
+            setTeamName(teamData?.data.title)
+            setTeamType(teamData?.data.teamType)
+        }
+    }, [teamData])
+
+    // useEffect(() => {
+    //     (async () => {
+    //         if (!teamId) return;
+    //         try {
+    //             await axios.get(`/api/team/get?id=${teamId}`)
+    //                 .then(res => {
+    //                     const data = res.data.data;
+    //                     if (data) {
+    //                         setTeamName(data?.title);
+    //                         setTeamType(data?.teamType);
+    //                     }
+    //                 })
+    //         } catch (error) {
+
+    //         }
+    //     })();
+    // }, [teamId]);
+
 
     // update team details
     const handleTeamUpdate = async () => {
@@ -73,21 +88,28 @@ export default function TeamEditPage() {
     }
 
     // get team member list
-    const [teamMembers, setTeamMembers] = useState<Array<any>|null>(null);
-    useEffect(() => {
-        (async () => {
-            try {
-                if (!teamId) return;
-                await axios.get(`/api/team/member/get-list?teamId=${teamId}`)
-                    .then(res => {
-                        const data = res.data.data;
-                        setTeamMembers(data || []);
-                    })
-            } catch (error) {
+    const { isLoading, isFetching, data: memberData } = useGetMemberListQuery(teamId);
+    const memberDataList = memberData?.data ?? [];
+    const [teamMembers, setTeamMembers] = useState<Array<any> | null>(null);
+    // useEffect(() => {
+    //     (async () => {
+    //         try {
+    //             if (!teamId) return;
+    //             await axios.get(`/api/team/member/get-list?teamId=${teamId}`)
+    //                 .then(res => {
+    //                     const data = res.data.data;
+    //                     setTeamMembers(data || []);
+    //                 })
+    //         } catch (error) {
 
-            }
-        })();
-    }, [teamId]);
+    //         }
+    //     })();
+    // }, [teamId]);
+    useEffect(() => {
+        if (memberDataList)
+            setTeamMembers(memberDataList)
+    }, [memberDataList])
+
 
     return (
         <div>
@@ -125,13 +147,16 @@ export default function TeamEditPage() {
                         </Button>
                     </div>
                     <div className='space-y-2'>
-                        {teamMembers?.length === 0 && (
+                        {isFetching! && teamMembers?.length === 0 && (
                             <p className='text-gray-600'>No members found.</p>
                         )}
-                        {teamMembers === null && (
+                        {isLoading && (
                             <p className='text-gray-600'>Loading...</p>
                         )}
-                        {teamMembers?.map((member) => (
+                        {!isLoading && isFetching && (
+                            <p className='text-gray-600'>Fetching...</p>
+                        )}
+                        {teamMembers?.map((member: any) => (
                             <div key={member?._id} className='flex items-center justify-between bg-gray-200 p-3 rounded-xl'>
                                 <div className='flex items-center gap-3'>
                                     <Avatar src={member?.avatar} />

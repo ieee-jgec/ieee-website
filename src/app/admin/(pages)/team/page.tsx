@@ -9,24 +9,30 @@ import { Pencil, Plus, UsersRound } from 'lucide-react'
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify';
+import { useGetTeamQuery } from '../../features/team/teamApi';
 
 export default function TeamAdminPage() {
     const [isCreateActive, setIsCreateActive] = useState(false);
     // get team member list
-    const [teams, setTeams] = useState<Array<any> | null>(null);
-    useEffect(() => {
-        (async () => {
-            try {
-                await axios.get(`/api/team/get-list`)
-                    .then(res => {
-                        const data = res.data.data;
-                        setTeams(data || []);
-                    })
-            } catch (error) {
+    // const [teams, setTeams] = useState<Array<any> | null>(null);
+    // useEffect(() => {
+    //     (async () => {
+    //         try {
+    //             await axios.get(`/api/team/get-list`)
+    //                 .then(res => {
+    //                     const data = res.data.data;
+    //                     setTeams(data || []);
+    //                 })
+    //         } catch (error) {
 
-            }
-        })();
-    }, []);
+    //         }
+    //     })();
+    // }, []);
+
+    const { isLoading, isFetching, data } = useGetTeamQuery(undefined, {
+        refetchOnMountOrArgChange: false
+    })
+    const teams = data?.data ?? []
 
     return (
         <div>
@@ -44,13 +50,16 @@ export default function TeamAdminPage() {
                 <div>
                     <h5 className='text-xl mb-3'>Teams</h5>
                     <div className='space-y-2'>
-                        {teams?.length === 0 && (
+                        {!isLoading && teams?.length === 0 && (
                             <p className='text-gray-600'>No teams found.</p>
                         )}
-                        {teams === null && (
+                        {isLoading && (
                             <p className='text-gray-600'>Loading...</p>
                         )}
-                        {teams?.map((team) => (
+                        {!isLoading && isFetching && (
+                            <p className='text-gray-600'>Fetching...</p>
+                        )}
+                        {teams?.map((team: any) => (
                             <TeamItem key={team._id} team={team} />
                         ))}
                     </div>
