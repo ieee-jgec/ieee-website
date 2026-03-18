@@ -28,10 +28,21 @@ export const noticeApi = baseApi.injectEndpoints({
                         body
                     }
                 },
-                invalidatesTags:["Notice"]
+                invalidatesTags: ["Notice"]
+            }),
+
+            deleteNotice: build.mutation({
+                query: (noticeId) => ({
+                    url: `/notice/remove?id=${noticeId}`,
+                    method: "DELETE"
+                }),
+                invalidatesTags: (result, error, noticeId) => [
+                    { type: "Notice", id: noticeId },
+                    { type: "Notice", id: "List" }
+                ],
             })
         }
     }
 });
 
-export const { useGetNoticesQuery, useGetNoticeByIdQuery, useCreateNoticeMutation } = noticeApi;
+export const { useGetNoticesQuery, useGetNoticeByIdQuery, useCreateNoticeMutation, useDeleteNoticeMutation } = noticeApi;

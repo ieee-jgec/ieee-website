@@ -1,6 +1,6 @@
 "use client";
 
-import { useCreateNoticeMutation, useGetNoticeByIdQuery } from "@/app/admin/features/notice/noticeApi";
+import { useCreateNoticeMutation, useDeleteNoticeMutation, useGetNoticeByIdQuery } from "@/app/admin/features/notice/noticeApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TextArea } from "@/components/ui/textArea";
@@ -32,7 +32,8 @@ export default function EventAddPage() {
   const { data: noticeById } = useGetNoticeByIdQuery(noticeId);
   const noticeByIdData = noticeById?.data;
 
-  const [createNotice] = useCreateNoticeMutation()
+  const [createNotice] = useCreateNoticeMutation();
+  const [deleteNotice] = useDeleteNoticeMutation();
 
   // Handle form changes
   const handleChange = (e: any, field: string) => {
@@ -128,10 +129,12 @@ export default function EventAddPage() {
   const handleDeleteNotice = async () => {
     try {
       if (!noticeId) return;
-      await axios.delete(`/api/notice/remove?id=${noticeId}`).then(() => {
-        toast.success("Notice removed successfully");
-        router.push(`/admin/notices`);
-      });
+      // await axios.delete(`/api/notice/remove?id=${noticeId}`)
+      await deleteNotice(noticeId).unwrap()
+        .then(() => {
+          toast.success("Notice removed successfully");
+          router.push(`/admin/notices`);
+        });
     } catch (error) {
       if (axios.isAxiosError(error)) {
         toast.error(error.response?.data?.message);

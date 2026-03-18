@@ -1,6 +1,6 @@
 "use client";
 
-import { useGetMemberListQuery, useGetTeamByIdQuery } from '@/app/admin/features/team/teamApi';
+import { useDeleteTeamMutation, useGetMemberListQuery, useGetTeamByIdQuery } from '@/app/admin/features/team/teamApi';
 import { Avatar } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -16,6 +16,8 @@ export default function TeamEditPage() {
     const pathname = usePathname();
     const params = useParams();
     const teamId = params.teamId;
+
+    const [deleteTeam] = useDeleteTeamMutation()
 
 
     // fetch team
@@ -74,7 +76,8 @@ export default function TeamEditPage() {
     const handleTeamRemove = async () => {
         try {
             setIsTeamUpdating(true);
-            await axios.delete(`/api/team/remove?id=${teamId}`)
+            // await axios.delete(`/api/team/remove?id=${teamId}`)
+            await deleteTeam(teamId).unwrap()
                 .then(() => {
                     toast.success("Team removed successfully");
                     router.push("/admin/team");
@@ -104,7 +107,7 @@ export default function TeamEditPage() {
     //         }
     //     })();
     // }, [teamId]);
-   
+
 
 
     return (

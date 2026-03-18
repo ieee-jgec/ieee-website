@@ -32,12 +32,38 @@ export const teamApi = baseApi.injectEndpoints({
                         url: "/team/member/create",
                         method: "POST",
                         body,
-                    }                    
+                    }
                 },
                 invalidatesTags: ["Member"]
+            }),
+
+            deleteTeam: build.mutation({
+                query: (teamId) => ({
+                    url: `/team/remove?id=${teamId}`,
+                    method: "DELETE"
+                }),
+                invalidatesTags(result, error, teamId) {
+                    return ([
+                        { type: "Team", id: teamId },
+                        { type: "Team" }
+                    ])
+                },
+            }),
+
+            deleteTeamMember: build.mutation({
+                query: (memberId) => ({
+                    url: `/team/member/remove?id=${memberId}`,
+                    method: "DELETE"
+                }),
+                invalidatesTags(result, error, memberId) {
+                    return ([
+                        { type: "Member", id: memberId },
+                        { type: "Member" }
+                    ])
+                },
             })
         }
     },
 })
 
-export const { useGetTeamQuery, useGetTeamByIdQuery, useGetMemberListQuery, useCreateTeamMutation, useCreateTeamMemberMutation } = teamApi;
+export const { useGetTeamQuery, useGetTeamByIdQuery, useGetMemberListQuery, useCreateTeamMutation, useCreateTeamMemberMutation, useDeleteTeamMutation, useDeleteTeamMemberMutation } = teamApi;

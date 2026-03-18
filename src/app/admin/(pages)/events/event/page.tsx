@@ -1,6 +1,6 @@
 "use client";
 
-import { useCreateEventMutation, useGetEventByIdQuery } from "@/app/admin/features/event/eventApi";
+import { useCreateEventMutation, useDeleteEventMutation, useGetEventByIdQuery } from "@/app/admin/features/event/eventApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TextArea } from "@/components/ui/textArea";
@@ -34,6 +34,7 @@ export default function EventAddPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [createEvent, { isLoading: isCreatingEvent }] = useCreateEventMutation();
+  const [deleteEvent] = useDeleteEventMutation();
 
   // Handle form changes
   const handleChange = (e: string, field: string) => {
@@ -144,10 +145,12 @@ export default function EventAddPage() {
   const handleDeleteEvent = async () => {
     try {
       if (!eventId) return;
-      await axios.delete(`/api/event/remove?id=${eventId}`).then(() => {
-        toast.success("Event removed successfully");
-        router.push(`/admin/events`);
-      });
+      // await axios.delete(`/api/event/remove?id=${eventId}`)
+      await deleteEvent(eventId).unwrap()
+        .then(() => {
+          toast.success("Event removed successfully");
+          router.push(`/admin/events`);
+        });
     } catch (error) {
       if (axios.isAxiosError(error)) {
         toast.error(error.response?.data?.message);

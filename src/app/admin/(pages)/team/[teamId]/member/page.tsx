@@ -1,6 +1,6 @@
 "use client";
 
-import { useCreateTeamMemberMutation } from "@/app/admin/features/team/teamApi";
+import { useCreateTeamMemberMutation, useDeleteTeamMemberMutation } from "@/app/admin/features/team/teamApi";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -68,7 +68,8 @@ export default function MemberAddPage() {
   const [isImageCropperOpen, setIsImageCropperOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [croppedFile, setCroppedFile] = useState<File | null>(null);
-  const [createTeamMember] = useCreateTeamMemberMutation()
+  const [createTeamMember] = useCreateTeamMemberMutation();
+  const [deleteTeamMember] = useDeleteTeamMemberMutation()
 
   // fetch the event
   useEffect(() => {
@@ -167,15 +168,17 @@ export default function MemberAddPage() {
     setIsLoading(false);
   };
 
-  // delete event
+  // delete member
   const handleDeleteMember = async () => {
     try {
       if (!memberId) return;
       setIsLoading(true);
-      await axios.delete(`/api/team/member/remove?id=${memberId}`).then(() => {
-        toast.success("Member removed successfully");
-        router.push(`/admin/team/${teamId}`);
-      });
+      // await axios.delete(`/api/team/member/remove?id=${memberId}`)
+      await deleteTeamMember(memberId).unwrap()
+        .then(() => {
+          toast.success("Member removed successfully");
+          router.push(`/admin/team/${teamId}`);
+        });
     } catch (error) {
       if (axios.isAxiosError(error)) {
         toast.error(error.response?.data?.message);
