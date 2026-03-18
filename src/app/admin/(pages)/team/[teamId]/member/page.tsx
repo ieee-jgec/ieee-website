@@ -1,11 +1,12 @@
 "use client";
 
-import { useCreateTeamMemberMutation, useDeleteTeamMemberMutation } from "@/app/admin/features/team/teamApi";
+import { useCreateTeamMemberMutation, useDeleteTeamMemberMutation, useGetMemberByIdQuery, useUpdateTeamMemberMutation } from "@/app/admin/features/team/teamApi";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PopupBox } from "@/components/ui/popupBox";
 import { Select } from "@/components/ui/select";
+import { updateTeamMember } from "@/lib/controllers/team.controller";
 import { objectToFormData } from "@/lib/utils/formdata-converter";
 import axios from "axios";
 import { Camera } from "lucide-react";
@@ -69,29 +70,49 @@ export default function MemberAddPage() {
   const [file, setFile] = useState<File | null>(null);
   const [croppedFile, setCroppedFile] = useState<File | null>(null);
   const [createTeamMember] = useCreateTeamMemberMutation();
-  const [deleteTeamMember] = useDeleteTeamMemberMutation()
+  const [deleteTeamMember] = useDeleteTeamMemberMutation();
+  const [updateTeamMember] = useUpdateTeamMemberMutation();
 
-  // fetch the event
+  // get member details 
+  const { data: memberById, isError } = useGetMemberByIdQuery(memberId);
+  const memberByIdData = memberById?.data;
+
   useEffect(() => {
-    (async () => {
-      if (!memberId || tab != "edit") return;
-      try {
-        await axios.get(`/api/team/member/get?id=${memberId}`).then((res) => {
-          const data = res.data.data;
-          if (data) {
-            setFormData({
-              ...data,
-              linkedin: data.socialMedia?.linkedin || "",
-              instagram: data.socialMedia?.instagram || "",
-            });
-            setPreviewUrl(data?.avatar);
-          }
-        });
-      } catch (error) {
-        toast.error("Faild to fetch member");
-      }
-    })();
-  }, [tab, memberId]);
+    if (isError) {
+      toast.error("Failed to fetch member");
+    }
+  }, [isError]);
+
+  // useEffect(() => {
+  //   (async () => {
+  //     if (!memberId || tab != "edit") return;
+  //     try {
+  //       await axios.get(`/api/team/member/get?id=${memberId}`).then((res) => {
+  //         const data = res.data.data;
+  //         if (data) {
+  //           setFormData({
+  //             ...data,
+  //             linkedin: data.socialMedia?.linkedin || "",
+  //             instagram: data.socialMedia?.instagram || "",
+  //           });
+  //           setPreviewUrl(data?.avatar);
+  //         }
+  //       });
+  //     } catch (error) {
+  //       toast.error("Faild to fetch member");
+  //     }
+  //   })();
+  // }, [tab, memberId]);
+
+  useEffect(() => {
+    if (memberByIdData) {
+      setFormData({
+        ...memberByIdData,
+        linkedin: memberByIdData.socialMedia?.linkedin || "",
+        instagram: memberByIdData.socialMedia?.instagram || "",
+      });
+    }
+  }, [memberById]);
 
   // handle preview image
   useEffect(() => {
@@ -132,7 +153,7 @@ export default function MemberAddPage() {
     }
   };
 
-  // create new event
+  // edit team member
   const handleEditMember = async () => {
     try {
       const data = {
@@ -141,18 +162,26 @@ export default function MemberAddPage() {
         avatar: croppedFile || formData.avatar,
       };
       const payLoads = objectToFormData(data);
-      await axios
-        .patch("/api/team/member/update", payLoads, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
+      // await axios
+      //   .patch("/api/team/member/update", payLoads, {
+      //     headers: {
+      //       "Content-Type": "multipart/form-data",
+      //     },
+      //   })
+      await updateTeamMember(payLoads).unwrap()
         .then(() => {
           toast.success("Member updated successfully");
+          router.push(`/admin/team/${teamId}`);
         });
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message);
+    } catch (error: any) {
+      console.log("RTK Error:", error);
+
+      if (error?.data?.message) {
+        toast.error(error.data.message);
+      } else if (error?.error) {
+        toast.error(error.error);
+      } else {
+        toast.error("Something went wrong");
       }
     }
   };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCreateNoticeMutation, useDeleteNoticeMutation, useGetNoticeByIdQuery } from "@/app/admin/features/notice/noticeApi";
+import { useCreateNoticeMutation, useDeleteNoticeMutation, useGetNoticeByIdQuery, useUpdateNoticeMutation } from "@/app/admin/features/notice/noticeApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TextArea } from "@/components/ui/textArea";
@@ -34,6 +34,7 @@ export default function EventAddPage() {
 
   const [createNotice] = useCreateNoticeMutation();
   const [deleteNotice] = useDeleteNoticeMutation();
+  const [updateNotice] = useUpdateNoticeMutation()
 
   // Handle form changes
   const handleChange = (e: any, field: string) => {
@@ -83,9 +84,15 @@ export default function EventAddPage() {
           toast.success("Notice created successfully");
           router.push("/admin/notices");
         });
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message);
+    } catch (error: any) {
+      console.log("RTK Error:", error);
+
+      if (error?.data?.message) {
+        toast.error(error.data.message);
+      } else if (error?.error) {
+        toast.error(error.error);
+      } else {
+        toast.error("Something went wrong");
       }
     }
   };
@@ -98,18 +105,25 @@ export default function EventAddPage() {
         noticePdf: file || formData.pdfUrl,
       };
       const payLoads = objectToFormData(data);
-      await axios
-        .patch(`/api/notice/update?id=${noticeId}`, payLoads, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
+      // await axios
+      //   .patch(`/api/notice/update?id=${noticeId}`, payLoads, {
+      //     headers: {
+      //       "Content-Type": "multipart/form-data",
+      //     },
+      //   })
+      await updateNotice({ noticeId, body: payLoads }).unwrap()
         .then(() => {
           toast.success("Notice updated successfully");
         });
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message);
+    } catch (error: any) {
+      console.log("RTK Error:", error);
+
+      if (error?.data?.message) {
+        toast.error(error.data.message);
+      } else if (error?.error) {
+        toast.error(error.error);
+      } else {
+        toast.error("Something went wrong");
       }
     }
   };

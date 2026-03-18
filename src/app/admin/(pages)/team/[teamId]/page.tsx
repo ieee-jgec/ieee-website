@@ -1,6 +1,6 @@
 "use client";
 
-import { useDeleteTeamMutation, useGetMemberListQuery, useGetTeamByIdQuery } from '@/app/admin/features/team/teamApi';
+import { useDeleteTeamMutation, useGetMemberListQuery, useGetTeamByIdQuery, useUpdateTeamMutation } from '@/app/admin/features/team/teamApi';
 import { Avatar } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,8 +17,9 @@ export default function TeamEditPage() {
     const params = useParams();
     const teamId = params.teamId;
 
-    const [deleteTeam] = useDeleteTeamMutation()
-
+    const [deleteTeam, { isLoading: isDeletingTeam }] = useDeleteTeamMutation();
+    const [updateTeam, { isLoading: isUpdatingTeam }] = useUpdateTeamMutation();
+    const isTeamUpdating = isDeletingTeam || isUpdatingTeam
 
     // fetch team
     const { data: teamData } = useGetTeamByIdQuery(teamId, {
@@ -26,7 +27,7 @@ export default function TeamEditPage() {
     });
     const teamDataInfo = teamData?.data ?? {};
 
-    const [isTeamUpdating, setIsTeamUpdating] = useState(false);
+    // const [isTeamUpdating, setIsTeamUpdating] = useState(false);
     const [teamName, setTeamName] = useState("");
     const [teamType, setTeamType] = useState("");
 
@@ -60,8 +61,13 @@ export default function TeamEditPage() {
     const handleTeamUpdate = async () => {
         try {
             if (!(teamName.trim()) || !teamType || !teamId) return;
-            setIsTeamUpdating(true);
-            await axios.patch("/api/team/update", { teamId, teamName, teamType })
+            // setIsTeamUpdating(true);
+            // await axios.patch("/api/team/update", { teamId, teamName, teamType })
+            await updateTeam({
+                teamId,
+                teamName,
+                teamType
+            }).unwrap()
                 .then(res => {
                     toast.success("Team details updated.")
                 })
@@ -70,24 +76,29 @@ export default function TeamEditPage() {
                 toast.error(error.response?.data?.message);
             }
         }
-        setIsTeamUpdating(false);
+        // setIsTeamUpdating(false);
     }
 
     const handleTeamRemove = async () => {
         try {
-            setIsTeamUpdating(true);
+            // setIsTeamUpdating(true);
             // await axios.delete(`/api/team/remove?id=${teamId}`)
             await deleteTeam(teamId).unwrap()
                 .then(() => {
                     toast.success("Team removed successfully");
-                    router.push("/admin/team");
                 })
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                toast.error(error.response?.data?.message);
+        } catch (error: any) {
+            console.log("RTK Error:", error);
+
+            if (error?.data?.message) {
+                toast.error(error.data.message);
+            } else if (error?.error) {
+                toast.error(error.error);
+            } else {
+                toast.error("Something went wrong");
             }
         }
-        setIsTeamUpdating(false);
+        // setIsTeamUpdating(false);
     }
 
     // get team member list

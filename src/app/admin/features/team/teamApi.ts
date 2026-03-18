@@ -16,6 +16,16 @@ export const teamApi = baseApi.injectEndpoints({
                 query: (teamId) => `/team/member/get-list?teamId=${teamId}`,
                 providesTags: ["Member"]
             }),
+
+            getMemberById: build.query({
+                query: (memberId) => `/team/member/get?id=${memberId}`,
+                providesTags(result, error, memberId) {
+                    return ([
+                        { type: "Member", id: memberId }
+                    ])
+                },
+            }),
+
             createTeam: build.mutation<any, any>({
                 query(body) {
                     return {
@@ -45,7 +55,7 @@ export const teamApi = baseApi.injectEndpoints({
                 invalidatesTags(result, error, teamId) {
                     return ([
                         { type: "Team", id: teamId },
-                        { type: "Team" }
+                        { type: "Team" },
                     ])
                 },
             }),
@@ -61,9 +71,32 @@ export const teamApi = baseApi.injectEndpoints({
                         { type: "Member" }
                     ])
                 },
+            }),
+
+            updateTeam: build.mutation({
+                query: ({ teamId, teamName, teamType }) => ({
+                    url: "/team/update",
+                    method: "PATCH",
+                    body: { teamId, teamName, teamType }
+                }),
+                invalidatesTags: ["Team"]
+            }),
+
+            updateTeamMember: build.mutation({
+                query: (body) => ({
+                    url: "/team/member/update",
+                    method: "PATCH",
+                    body
+                }),
+                invalidatesTags(result, error, memberDetails) {
+                    return ([
+                        { type: "Member", id: memberDetails.memberId },
+                        { type: "Member" }
+                    ])
+                },
             })
         }
     },
 })
 
-export const { useGetTeamQuery, useGetTeamByIdQuery, useGetMemberListQuery, useCreateTeamMutation, useCreateTeamMemberMutation, useDeleteTeamMutation, useDeleteTeamMemberMutation } = teamApi;
+export const { useGetTeamQuery, useGetTeamByIdQuery, useGetMemberListQuery, useGetMemberByIdQuery, useCreateTeamMutation, useCreateTeamMemberMutation, useDeleteTeamMutation, useDeleteTeamMemberMutation, useUpdateTeamMutation, useUpdateTeamMemberMutation } = teamApi;

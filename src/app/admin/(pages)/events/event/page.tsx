@@ -1,6 +1,6 @@
 "use client";
 
-import { useCreateEventMutation, useDeleteEventMutation, useGetEventByIdQuery } from "@/app/admin/features/event/eventApi";
+import { useCreateEventMutation, useDeleteEventMutation, useGetEventByIdQuery, useUpdateEventMutation } from "@/app/admin/features/event/eventApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TextArea } from "@/components/ui/textArea";
@@ -35,6 +35,7 @@ export default function EventAddPage() {
   const [file, setFile] = useState<File | null>(null);
   const [createEvent, { isLoading: isCreatingEvent }] = useCreateEventMutation();
   const [deleteEvent] = useDeleteEventMutation();
+  const [updateEvent] = useUpdateEventMutation();
 
   // Handle form changes
   const handleChange = (e: string, field: string) => {
@@ -98,9 +99,15 @@ export default function EventAddPage() {
           toast.success("Event created successfully");
           router.push("/admin/events");
         });
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message);
+    } catch (error: any) {
+      console.log("RTK Error:", error);
+
+      if (error?.data?.message) {
+        toast.error(error.data.message);
+      } else if (error?.error) {
+        toast.error(error.error);
+      } else {
+        toast.error("Something went wrong");
       }
     }
   };
@@ -114,12 +121,13 @@ export default function EventAddPage() {
         thumbnail: file || formData.thumbnail,
       };
       const payLoads = objectToFormData(data);
-      await axios
-        .patch("/api/event/update", payLoads, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
+      // await axios
+      //   .patch("/api/event/update", payLoads, {
+      //     headers: {
+      //       "Content-Type": "multipart/form-data",
+      //     },
+      //   })
+      await updateEvent(payLoads).unwrap()
         .then(() => {
           toast.success("Event updated successfully");
         });

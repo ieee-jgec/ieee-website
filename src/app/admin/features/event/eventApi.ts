@@ -27,13 +27,24 @@ export const eventApi = baseApi.injectEndpoints({
                     url: `/event/remove?id=${eventId}`,
                     method: "DELETE"
                 }),
-                invalidatesTags:(result,error,eventId)=>([
-                    {type:"Event", id:eventId},
-                    {type:"Event"}
+                invalidatesTags: (result, error, eventId) => ([
+                    { type: "Event", id: eventId },
+                    { type: "Event" }
                 ])
+            }),
+
+            updateEvent: build.mutation({
+                query(body) {
+                    return {
+                        url: "/event/update",
+                        method: "PATCH",
+                        body
+                    }
+                },
+                invalidatesTags: ["Event"]
             })
         }
     },
 });
 
-export const { useGetEventsQuery, useGetEventByIdQuery, useCreateEventMutation, useDeleteEventMutation } = eventApi
+export const { useGetEventsQuery, useGetEventByIdQuery, useCreateEventMutation, useDeleteEventMutation, useUpdateEventMutation } = eventApi

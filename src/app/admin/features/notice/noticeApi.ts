@@ -40,9 +40,18 @@ export const noticeApi = baseApi.injectEndpoints({
                     { type: "Notice", id: noticeId },
                     { type: "Notice", id: "List" }
                 ],
+            }),
+
+            updateNotice: build.mutation({
+                query: ({ noticeId, body }) => ({
+                    url: `/notice/update?id=${noticeId}`,
+                    method: "PATCH",
+                    body
+                }),
+                invalidatesTags: ["Notice"]
             })
         }
     }
 });
 
-export const { useGetNoticesQuery, useGetNoticeByIdQuery, useCreateNoticeMutation, useDeleteNoticeMutation } = noticeApi;
+export const { useGetNoticesQuery, useGetNoticeByIdQuery, useCreateNoticeMutation, useDeleteNoticeMutation, useUpdateNoticeMutation } = noticeApi;
