@@ -1,5 +1,6 @@
 "use client";
 
+import { useCreateNoticeMutation, useGetNoticeByIdQuery } from "@/app/admin/features/notice/noticeApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TextArea } from "@/components/ui/textArea";
@@ -28,6 +29,10 @@ export default function EventAddPage() {
   });
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
+  const { data: noticeById } = useGetNoticeByIdQuery(noticeId);
+  const noticeByIdData = noticeById?.data;
+
+  const [createNotice] = useCreateNoticeMutation()
 
   // Handle form changes
   const handleChange = (e: any, field: string) => {
@@ -42,16 +47,14 @@ export default function EventAddPage() {
     (async () => {
       if (!noticeId || tab != "edit") return;
       try {
-        await axios.get(`/api/notice/get?id=${noticeId}`).then((res) => {
-          const data = res.data.data;
-          if (data) setFormData(data);
-          setPdfUrl(data?.pdfUrl);
-        });
+        if (noticeByIdData) setFormData(noticeByIdData);
+        setPdfUrl(noticeByIdData?.pdfUrl);
+
       } catch (error) {
         toast.error("Faild to fetch notice");
       }
     })();
-  }, [tab, noticeId]);
+  }, [noticeById]);
 
   // handle preview image
   useEffect(() => {
@@ -68,12 +71,13 @@ export default function EventAddPage() {
         noticePdf: file,
       };
       const payLoads = objectToFormData(data);
-      await axios
-        .post("/api/notice/create", payLoads, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
+      // await axios
+      //   .post("/api/notice/create", payLoads, {
+      //     headers: {
+      //       "Content-Type": "multipart/form-data",
+      //     },
+      //   })
+      await createNotice(payLoads).unwrap()
         .then(() => {
           toast.success("Notice created successfully");
           router.push("/admin/notices");
@@ -85,7 +89,7 @@ export default function EventAddPage() {
     }
   };
 
-  // create new notice
+  // edit notice
   const handleEditNotice = async () => {
     try {
       const data = {

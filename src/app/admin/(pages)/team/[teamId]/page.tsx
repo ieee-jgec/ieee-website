@@ -89,8 +89,7 @@ export default function TeamEditPage() {
 
     // get team member list
     const { isLoading, isFetching, data: memberData } = useGetMemberListQuery(teamId);
-    const memberDataList = memberData?.data ?? [];
-    const [teamMembers, setTeamMembers] = useState<Array<any> | null>(null);
+    const teamMembers = memberData?.data ?? [];
     // useEffect(() => {
     //     (async () => {
     //         try {
@@ -105,10 +104,7 @@ export default function TeamEditPage() {
     //         }
     //     })();
     // }, [teamId]);
-    useEffect(() => {
-        if (memberDataList)
-            setTeamMembers(memberDataList)
-    }, [memberDataList])
+   
 
 
     return (
@@ -147,7 +143,7 @@ export default function TeamEditPage() {
                         </Button>
                     </div>
                     <div className='space-y-2'>
-                        {isFetching! && teamMembers?.length === 0 && (
+                        {!isFetching && !teamMembers?.length && (
                             <p className='text-gray-600'>No members found.</p>
                         )}
                         {isLoading && (

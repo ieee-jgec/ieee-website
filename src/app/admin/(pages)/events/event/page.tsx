@@ -1,6 +1,6 @@
 "use client";
 
-import { useGetEventByIdQuery } from "@/app/admin/features/event/eventApi";
+import { useCreateEventMutation, useGetEventByIdQuery } from "@/app/admin/features/event/eventApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TextArea } from "@/components/ui/textArea";
@@ -33,6 +33,7 @@ export default function EventAddPage() {
   });
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
+  const [createEvent, { isLoading: isCreatingEvent }] = useCreateEventMutation();
 
   // Handle form changes
   const handleChange = (e: string, field: string) => {
@@ -85,12 +86,13 @@ export default function EventAddPage() {
         thumbnail: file || formData.thumbnail,
       };
       const payLoads = objectToFormData(data);
-      await axios
-        .post("/api/event/create", payLoads, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
+      // await axios
+      //   .post("/api/event/create", payLoads, {
+      //     headers: {
+      //       "Content-Type": "multipart/form-data",
+      //     },
+      //   })
+      await createEvent(payLoads).unwrap()
         .then(() => {
           toast.success("Event created successfully");
           router.push("/admin/events");

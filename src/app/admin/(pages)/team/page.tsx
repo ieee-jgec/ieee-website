@@ -9,7 +9,7 @@ import { Pencil, Plus, UsersRound } from 'lucide-react'
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify';
-import { useGetTeamQuery } from '../../features/team/teamApi';
+import { useCreateTeamMutation, useGetTeamQuery } from '../../features/team/teamApi';
 
 export default function TeamAdminPage() {
     const [isCreateActive, setIsCreateActive] = useState(false);
@@ -95,11 +95,12 @@ const CreateTeamPopup = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => 
     const [isTeamCreating, setIsTeamCreating] = useState(false);
     const [teamName, setTeamName] = useState("");
     const [teamType, setTeamType] = useState("");
+    const [createTeam, {isLoading}] = useCreateTeamMutation();
     const handleCreateTeam = async () => {
         try {
             if (!(teamName.trim()) || !teamType) return;
             setIsTeamCreating(true);
-            await axios.post("/api/team/create", { teamName, teamType })
+            await createTeam({ teamName, teamType })
                 .then(res => {
                     const teamId = res.data?.data?.teamId;
                     if (teamId)
@@ -118,17 +119,17 @@ const CreateTeamPopup = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => 
             <h5 className='text-md font-semibold'>Create new Team</h5>
             <div className='space-y-3'>
                 <div>
-                    <Input placeholder='Enter team name' onChange={e => setTeamName(e)} disabled={isTeamCreating} />
+                    <Input placeholder='Enter team name' onChange={e => setTeamName(e)} disabled={isLoading} />
                 </div>
                 <div>
-                    <Select options={['student', 'faculty', 'alumni']} placeholder='Select team type' value={teamType} onChange={e => setTeamType(e)} disabled={isTeamCreating} />
+                    <Select options={['student', 'faculty', 'alumni']} placeholder='Select team type' value={teamType} onChange={e => setTeamType(e)} disabled={isLoading} />
                 </div>
             </div>
             <div className='flex justify-end gap-3'>
-                <Button variant='outline' onClick={onClose} disabled={isTeamCreating}>
+                <Button variant='outline' onClick={onClose} disabled={isLoading}>
                     Close
                 </Button>
-                <Button onClick={handleCreateTeam} disabled={isTeamCreating}>
+                <Button onClick={handleCreateTeam} disabled={isLoading}>
                     Create team
                 </Button>
             </div>

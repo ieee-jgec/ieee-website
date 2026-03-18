@@ -1,5 +1,6 @@
 "use client";
 
+import { useCreateTeamMemberMutation } from "@/app/admin/features/team/teamApi";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,6 +68,7 @@ export default function MemberAddPage() {
   const [isImageCropperOpen, setIsImageCropperOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [croppedFile, setCroppedFile] = useState<File | null>(null);
+  const [createTeamMember] = useCreateTeamMemberMutation()
 
   // fetch the event
   useEffect(() => {
@@ -111,12 +113,13 @@ export default function MemberAddPage() {
         avatar: croppedFile || formData.avatar,
       };
       const payLoads = objectToFormData(data);
-      await axios
-        .post("/api/team/member/create", payLoads, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
+      // await axios
+      //   .post("/api/team/member/create", payLoads, {
+      //     headers: {
+      //       "Content-Type": "multipart/form-data",
+      //     },
+      //   })
+      createTeamMember(payLoads).unwrap()
         .then(() => {
           toast.success("Member created successfully");
           router.push(`/admin/team/${teamId}`);
