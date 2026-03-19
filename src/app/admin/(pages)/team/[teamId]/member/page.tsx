@@ -83,27 +83,6 @@ export default function MemberAddPage() {
     }
   }, [isError]);
 
-  // useEffect(() => {
-  //   (async () => {
-  //     if (!memberId || tab != "edit") return;
-  //     try {
-  //       await axios.get(`/api/team/member/get?id=${memberId}`).then((res) => {
-  //         const data = res.data.data;
-  //         if (data) {
-  //           setFormData({
-  //             ...data,
-  //             linkedin: data.socialMedia?.linkedin || "",
-  //             instagram: data.socialMedia?.instagram || "",
-  //           });
-  //           setPreviewUrl(data?.avatar);
-  //         }
-  //       });
-  //     } catch (error) {
-  //       toast.error("Faild to fetch member");
-  //     }
-  //   })();
-  // }, [tab, memberId]);
-
   useEffect(() => {
     if (memberByIdData) {
       setFormData({
@@ -135,12 +114,7 @@ export default function MemberAddPage() {
         avatar: croppedFile || formData.avatar,
       };
       const payLoads = objectToFormData(data);
-      // await axios
-      //   .post("/api/team/member/create", payLoads, {
-      //     headers: {
-      //       "Content-Type": "multipart/form-data",
-      //     },
-      //   })
+      
       createTeamMember(payLoads).unwrap()
         .then(() => {
           toast.success("Member created successfully");
@@ -162,12 +136,6 @@ export default function MemberAddPage() {
         avatar: croppedFile || formData.avatar,
       };
       const payLoads = objectToFormData(data);
-      // await axios
-      //   .patch("/api/team/member/update", payLoads, {
-      //     headers: {
-      //       "Content-Type": "multipart/form-data",
-      //     },
-      //   })
       await updateTeamMember(payLoads).unwrap()
         .then(() => {
           toast.success("Member updated successfully");
@@ -202,7 +170,6 @@ export default function MemberAddPage() {
     try {
       if (!memberId) return;
       setIsLoading(true);
-      // await axios.delete(`/api/team/member/remove?id=${memberId}`)
       await deleteTeamMember(memberId).unwrap()
         .then(() => {
           toast.success("Member removed successfully");

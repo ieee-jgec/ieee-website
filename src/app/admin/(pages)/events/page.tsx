@@ -9,20 +9,6 @@ import { useGetEventsQuery } from "../../features/event/eventApi";
 
 export default function EventAdminPage() {
   const router = useRouter();
-  // get events
-  // const [eventList, setEventList] = useState<Record<string, any>[] | null>(
-  //   null,
-  // );
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       await axios.get("/api/event/get-all").then((res) => {
-  //         const list = res.data.data;
-  //         setEventList(list);
-  //       });
-  //     } catch (error) {}
-  //   })();
-  // }, []);
 
   const { isFetching, data } = useGetEventsQuery()
   const eventList = data?.data ?? [];

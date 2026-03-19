@@ -45,22 +45,6 @@ export default function EventAddPage() {
     });
   };
 
-  // fetch the event
-  // useEffect(() => {
-  //   (async () => {
-  //     if (!eventId || tab != "edit") return;
-  //     try {
-  //       await axios.get(`/api/event/get?id=${eventId}`).then((res) => {
-  //         const data = res.data.data;
-  //         if (data) setFormData(data);
-  //         setPreviewUrl(data?.thumbnail);
-  //       });
-  //     } catch (error) {
-  //       toast.error("Faild to fetch event");
-  //     }
-  //   })();
-  // }, [tab, eventId]);
-
   const { isFetching, data } = useGetEventByIdQuery(eventId, {
     refetchOnMountOrArgChange: false
   })
@@ -88,12 +72,7 @@ export default function EventAddPage() {
         thumbnail: file || formData.thumbnail,
       };
       const payLoads = objectToFormData(data);
-      // await axios
-      //   .post("/api/event/create", payLoads, {
-      //     headers: {
-      //       "Content-Type": "multipart/form-data",
-      //     },
-      //   })
+      
       await createEvent(payLoads).unwrap()
         .then(() => {
           toast.success("Event created successfully");
@@ -121,12 +100,7 @@ export default function EventAddPage() {
         thumbnail: file || formData.thumbnail,
       };
       const payLoads = objectToFormData(data);
-      // await axios
-      //   .patch("/api/event/update", payLoads, {
-      //     headers: {
-      //       "Content-Type": "multipart/form-data",
-      //     },
-      //   })
+      
       await updateEvent(payLoads).unwrap()
         .then(() => {
           toast.success("Event updated successfully");
@@ -153,7 +127,6 @@ export default function EventAddPage() {
   const handleDeleteEvent = async () => {
     try {
       if (!eventId) return;
-      // await axios.delete(`/api/event/remove?id=${eventId}`)
       await deleteEvent(eventId).unwrap()
         .then(() => {
           toast.success("Event removed successfully");

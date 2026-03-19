@@ -27,7 +27,6 @@ export default function TeamEditPage() {
     });
     const teamDataInfo = teamData?.data ?? {};
 
-    // const [isTeamUpdating, setIsTeamUpdating] = useState(false);
     const [teamName, setTeamName] = useState("");
     const [teamType, setTeamType] = useState("");
 
@@ -38,31 +37,10 @@ export default function TeamEditPage() {
         }
     }, [teamData])
 
-    // useEffect(() => {
-    //     (async () => {
-    //         if (!teamId) return;
-    //         try {
-    //             await axios.get(`/api/team/get?id=${teamId}`)
-    //                 .then(res => {
-    //                     const data = res.data.data;
-    //                     if (data) {
-    //                         setTeamName(data?.title);
-    //                         setTeamType(data?.teamType);
-    //                     }
-    //                 })
-    //         } catch (error) {
-
-    //         }
-    //     })();
-    // }, [teamId]);
-
-
     // update team details
     const handleTeamUpdate = async () => {
         try {
             if (!(teamName.trim()) || !teamType || !teamId) return;
-            // setIsTeamUpdating(true);
-            // await axios.patch("/api/team/update", { teamId, teamName, teamType })
             await updateTeam({
                 teamId,
                 teamName,
@@ -76,16 +54,14 @@ export default function TeamEditPage() {
                 toast.error(error.response?.data?.message);
             }
         }
-        // setIsTeamUpdating(false);
     }
 
     const handleTeamRemove = async () => {
         try {
-            // setIsTeamUpdating(true);
-            // await axios.delete(`/api/team/remove?id=${teamId}`)
             await deleteTeam(teamId).unwrap()
                 .then(() => {
                     toast.success("Team removed successfully");
+                    router.back();
                 })
         } catch (error: any) {
             console.log("RTK Error:", error);
@@ -98,28 +74,11 @@ export default function TeamEditPage() {
                 toast.error("Something went wrong");
             }
         }
-        // setIsTeamUpdating(false);
     }
 
     // get team member list
     const { isLoading, isFetching, data: memberData } = useGetMemberListQuery(teamId);
     const teamMembers = memberData?.data ?? [];
-    // useEffect(() => {
-    //     (async () => {
-    //         try {
-    //             if (!teamId) return;
-    //             await axios.get(`/api/team/member/get-list?teamId=${teamId}`)
-    //                 .then(res => {
-    //                     const data = res.data.data;
-    //                     setTeamMembers(data || []);
-    //                 })
-    //         } catch (error) {
-
-    //         }
-    //     })();
-    // }, [teamId]);
-
-
 
     return (
         <div>

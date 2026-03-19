@@ -73,12 +73,7 @@ export default function EventAddPage() {
         noticePdf: file,
       };
       const payLoads = objectToFormData(data);
-      // await axios
-      //   .post("/api/notice/create", payLoads, {
-      //     headers: {
-      //       "Content-Type": "multipart/form-data",
-      //     },
-      //   })
+     
       await createNotice(payLoads).unwrap()
         .then(() => {
           toast.success("Notice created successfully");
@@ -105,12 +100,7 @@ export default function EventAddPage() {
         noticePdf: file || formData.pdfUrl,
       };
       const payLoads = objectToFormData(data);
-      // await axios
-      //   .patch(`/api/notice/update?id=${noticeId}`, payLoads, {
-      //     headers: {
-      //       "Content-Type": "multipart/form-data",
-      //     },
-      //   })
+      
       await updateNotice({ noticeId, body: payLoads }).unwrap()
         .then(() => {
           toast.success("Notice updated successfully");
@@ -143,7 +133,6 @@ export default function EventAddPage() {
   const handleDeleteNotice = async () => {
     try {
       if (!noticeId) return;
-      // await axios.delete(`/api/notice/remove?id=${noticeId}`)
       await deleteNotice(noticeId).unwrap()
         .then(() => {
           toast.success("Notice removed successfully");

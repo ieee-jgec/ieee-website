@@ -13,21 +13,6 @@ import { useCreateTeamMutation, useGetTeamQuery } from '../../features/team/team
 
 export default function TeamAdminPage() {
     const [isCreateActive, setIsCreateActive] = useState(false);
-    // get team member list
-    // const [teams, setTeams] = useState<Array<any> | null>(null);
-    // useEffect(() => {
-    //     (async () => {
-    //         try {
-    //             await axios.get(`/api/team/get-list`)
-    //                 .then(res => {
-    //                     const data = res.data.data;
-    //                     setTeams(data || []);
-    //                 })
-    //         } catch (error) {
-
-    //         }
-    //     })();
-    // }, []);
 
     const { isLoading, isFetching, data } = useGetTeamQuery(undefined, {
         refetchOnMountOrArgChange: false
