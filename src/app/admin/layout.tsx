@@ -12,27 +12,27 @@ export const metadata: Metadata = {
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
 
     return (
-        <AuthProvider>
-            <div>
-                <div className='bg-gray-300 w-full sticky top-0 p-2 z-50'>
-                    <h5 className='text-xl font-semibold'>IEEE JGEC Admin panel</h5>
-                </div>
-                <div className='flex'>
-                    {/* admin nav section */}
-                    <Providers>
+        <Providers>
+            <AuthProvider>
+                <div>
+                    <div className='bg-gray-300 w-full sticky top-0 p-2 z-50'>
+                        <h5 className='text-xl font-semibold'>IEEE JGEC Admin panel</h5>
+                    </div>
+                    <div className='flex'>
+                        {/* admin nav section */}
                         <SideNav />
-
                         <div className='flex-1 w-full min-h-[calc(100vh-44px)] p-3'>
                             {children}
                         </div>
-                    </Providers>
+                    </div>
+                    <ToastContainer
+                        autoClose={2500}
+                        position='bottom-right'
+                        pauseOnHover={false}
+                    />
                 </div>
-                <ToastContainer
-                    autoClose={2500}
-                    position='bottom-right'
-                    pauseOnHover={false}
-                />
-            </div>
-        </AuthProvider>
+            </AuthProvider>
+        </Providers >
+
     )
 };

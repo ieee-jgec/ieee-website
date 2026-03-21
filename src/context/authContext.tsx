@@ -1,5 +1,7 @@
 "use client"
 
+import { useGetUserQuery, useLoginUserMutation, useLogoutUserMutation } from '@/app/admin/features/user/userApi';
+import { logoutUser } from '@/lib/controllers/user.controller';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import React, { createContext, useContext, useEffect, useState } from 'react'
@@ -10,41 +12,36 @@ type AuthContextType = {
     login: (email: string, password: string) => Promise<void>;
     logout: () => void;
     user: any;
-    isLogging: boolean;
+    isLoggingIn: boolean;
+    isLoggingOut: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const router = useRouter();
+    const [loginUser, { isLoading: isLoggingIn }] = useLoginUserMutation();
+    const [logoutUser, { isLoading: isLoggingOut }] = useLogoutUserMutation();
 
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-    const [isLogging, setIsLogging] = useState(false);
-    const [user, setUser] = useState<Record<string, any> | null>(null);
+    let isAuthenticated = false
 
-    // check auth and get user
+    const { data, isLoading, isError } = useGetUserQuery();
+    const user = data?.data;
+
     useEffect(() => {
-        (async () => {
-            try {
-                await axios.get("/api/user/current-user")
-                    .then((res) => {
-                        const data = res.data.data;
-                        setIsAuthenticated(true);
-                        setUser(data);
-                    })
-            } catch (error) {
-                setIsAuthenticated(false);
-                router.push("/admin/auth/login");
-            }
-        })();
-    }, []);
+        if (isError) {
+            router.push("/admin/auth/login");
+        }
+    }, [isError, router]);
+
+    if (isLoading) return <div>Loading...</div>;
+    if (!isLoading) isAuthenticated = !!user
 
     // login
     const login = async (email: string, password: string) => {
         if (!email || !password) return;
         try {
-            setIsLogging(true)
-            await axios.post("/api/user/login", { email, password })
+            await loginUser({ body: { email, password } }).unwrap()
                 .then(() => {
                     window.location.href = `${window.location.origin}/admin/access-control`;
                 })
@@ -54,36 +51,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             } else {
                 toast.error("Something went wrong")
             }
-            setIsLogging(false)
         }
     }
 
     // logout
     const logout = async () => {
         try {
-            setIsLogging(true);
-            await axios.get("/api/user/logout")
+            await logoutUser().unwrap()
                 .then(() => {
                     window.location.href = `${window.location.origin}/admin/auth/login`;
                 })
         } catch (error) {
             toast.error("Failed to login");
-            setIsLogging(false);
         }
     }
 
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, user, login, logout, isLogging }}>
+        <AuthContext.Provider value={{ isAuthenticated, user, login, logout, isLoggingIn, isLoggingOut }}>
             {children}
         </AuthContext.Provider>
     )
 }
 
 export const useAuth = () => {
-    const { isAuthenticated, user, login, logout, isLogging } = useContext(AuthContext)!;
+    const { isAuthenticated, user, login, logout, isLoggingIn, isLoggingOut } = useContext(AuthContext)!;
 
-    return { isAuthenticated, user, login, logout, isLogging };
+    return { isAuthenticated, user, login, logout, isLoggingIn, isLoggingOut };
 }
 
 export default AuthContext;

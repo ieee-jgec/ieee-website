@@ -9,28 +9,16 @@ import { Edit, Pen, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify';
+import { useGetUserListQuery, useUpdatePasswordMutation, useUpdateRoleMutation } from '../../features/user/userApi';
 
 export default function AccessPage() {
     const router = useRouter();
-    const { user, logout, isLogging } = useAuth();
+    const { user, logout, isLoggingOut } = useAuth();
     const isAdminRole = user?.role === "admin";
 
-    // get user list
-    const [userList, setUserList] = useState<Record<string, any>[] | null>(null);
-    useEffect(() => {
-        (async () => {
-            if (user?.role !== "admin") return;
-            try {
-                await axios.get('/api/user/user-list')
-                    .then(res => {
-                        const list = res.data.data;
-                        setUserList(list);
-                    })
-            } catch (error) {
+    const { data, isFetching } = useGetUserListQuery();
+    const userList = data?.data ?? [];
 
-            }
-        })();
-    }, [user]);
 
     const handleLogout = async () => {
         await logout();
@@ -40,23 +28,21 @@ export default function AccessPage() {
     // handle password update popup
     const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "" });
     const [isPasswordPopupOpen, setIsPasswordPopupOpen] = useState(false);
-    const [isPasswordUpdating, setIsPasswordUpdating] = useState(false);
+
+    const [updatePassword, { isLoading: isPasswordUpdating }] = useUpdatePasswordMutation()
+
     const handlePasswordUpdate = async () => {
         if (!passwordForm.currentPassword || !passwordForm.newPassword) return;
         try {
-            setIsPasswordUpdating(true);
-            await axios.patch("/api/user/update-password", passwordForm)
+            await updatePassword(passwordForm).unwrap()
                 .then(() => {
                     toast.success("Password updated successfully");
                     setIsPasswordPopupOpen(false);
                     setPasswordForm({ currentPassword: "", newPassword: "" });
                 })
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                toast.error(error.response?.data.message);
-            }
+        } catch (error: any) {
+            toast.error(error?.data?.message);
         }
-        setIsPasswordUpdating(false);
     }
 
 
@@ -84,17 +70,21 @@ export default function AccessPage() {
                             Add new user
                         </Button>
                     }
-                    <Button className='bg-red-500' onClick={handleLogout} disabled={isLogging}>
+                    <Button className='bg-red-500' onClick={handleLogout} disabled={isLoggingOut}>
                         Logout
                     </Button>
                 </div>
-                <h3 className='text-xl mb-4'>Other users</h3>
-                <div className='space-y-4'>
-                    {userList?.map((member, index) => (
-                        <AuthorizedMemberCard data={member} key={index} />
-                    ))}
-                </div>
-                {userList?.length === 0 && <div className='text-center'>No users found!</div>}
+                {isAdminRole &&
+                    <>
+                        <h3 className='text-xl mb-4'>Other users</h3>
+                        <div className='space-y-4'>
+                            {userList?.map((member: any, index: number) => (
+                                <AuthorizedMemberCard data={member} key={index} />
+                            ))}
+                        </div>
+                        {userList?.length === 0 || !isAdminRole && <div className='text-center'>No users found!</div>}
+                    </>
+                }
             </div>
 
             <PopupBox className='p-3 !max-w-[30em] w-full space-y-6' openState={isPasswordPopupOpen} onClose={() => setIsPasswordPopupOpen(false)}>
@@ -118,16 +108,17 @@ export default function AccessPage() {
 const AuthorizedMemberCard = ({ data }: { data: Record<string, any> }) => {
     // handle role
     const [userRole, setUserRole] = useState(data?.role);
+    const [updateRole, { isLoading: isRoleUpdating }] = useUpdateRoleMutation();
 
     // handle user role popup
     const [isPopupOpen, setIsPopupOpen] = useState(false);
-    const [isRoleUpdating, setIsRoleUpdating] = useState(false);
+    // const [isRoleUpdating, setIsRoleUpdating] = useState(false);
 
     const handleRoleUpdate = async (role: string) => {
         try {
             if (!data) return;
-            setIsRoleUpdating(true);
-            await axios.post('/api/user/update-role', { userId: data?._id, role })
+            // setIsRoleUpdating(true);
+            await updateRole({ userId: data?._id, role }).unwrap()
                 .then(() => {
                     setUserRole(role);
                     setIsPopupOpen(false);
@@ -136,7 +127,7 @@ const AuthorizedMemberCard = ({ data }: { data: Record<string, any> }) => {
         } catch (error) {
             toast.error("Failed to update user role.");
         }
-        setIsRoleUpdating(false);
+        // setIsRoleUpdating(false);
     }
 
     return (
