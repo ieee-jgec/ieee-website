@@ -9,24 +9,15 @@ import { Pencil, Plus, UsersRound } from 'lucide-react'
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify';
+import { useCreateTeamMutation, useGetTeamQuery } from '../../features/team/teamApi';
 
 export default function TeamAdminPage() {
     const [isCreateActive, setIsCreateActive] = useState(false);
-    // get team member list
-    const [teams, setTeams] = useState<Array<any> | null>(null);
-    useEffect(() => {
-        (async () => {
-            try {
-                await axios.get(`/api/team/get-list`)
-                    .then(res => {
-                        const data = res.data.data;
-                        setTeams(data || []);
-                    })
-            } catch (error) {
 
-            }
-        })();
-    }, []);
+    const { isLoading, isFetching, data } = useGetTeamQuery(undefined, {
+        refetchOnMountOrArgChange: false
+    })
+    const teams = data?.data ?? []
 
     return (
         <div>
@@ -44,13 +35,16 @@ export default function TeamAdminPage() {
                 <div>
                     <h5 className='text-xl mb-3'>Teams</h5>
                     <div className='space-y-2'>
-                        {teams?.length === 0 && (
+                        {!isLoading && teams?.length === 0 && (
                             <p className='text-gray-600'>No teams found.</p>
                         )}
-                        {teams === null && (
+                        {isLoading && (
                             <p className='text-gray-600'>Loading...</p>
                         )}
-                        {teams?.map((team) => (
+                        {!isLoading && isFetching && (
+                            <p className='text-gray-600'>Fetching...</p>
+                        )}
+                        {teams?.map((team: any) => (
                             <TeamItem key={team._id} team={team} />
                         ))}
                     </div>
@@ -86,11 +80,12 @@ const CreateTeamPopup = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => 
     const [isTeamCreating, setIsTeamCreating] = useState(false);
     const [teamName, setTeamName] = useState("");
     const [teamType, setTeamType] = useState("");
+    const [createTeam, {isLoading}] = useCreateTeamMutation();
     const handleCreateTeam = async () => {
         try {
             if (!(teamName.trim()) || !teamType) return;
             setIsTeamCreating(true);
-            await axios.post("/api/team/create", { teamName, teamType })
+            await createTeam({ teamName, teamType })
                 .then(res => {
                     const teamId = res.data?.data?.teamId;
                     if (teamId)
@@ -109,17 +104,17 @@ const CreateTeamPopup = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => 
             <h5 className='text-md font-semibold'>Create new Team</h5>
             <div className='space-y-3'>
                 <div>
-                    <Input placeholder='Enter team name' onChange={e => setTeamName(e)} disabled={isTeamCreating} />
+                    <Input placeholder='Enter team name' onChange={e => setTeamName(e)} disabled={isLoading} />
                 </div>
                 <div>
-                    <Select options={['student', 'faculty', 'alumni']} placeholder='Select team type' value={teamType} onChange={e => setTeamType(e)} disabled={isTeamCreating} />
+                    <Select options={['student', 'faculty', 'alumni']} placeholder='Select team type' value={teamType} onChange={e => setTeamType(e)} disabled={isLoading} />
                 </div>
             </div>
             <div className='flex justify-end gap-3'>
-                <Button variant='outline' onClick={onClose} disabled={isTeamCreating}>
+                <Button variant='outline' onClick={onClose} disabled={isLoading}>
                     Close
                 </Button>
-                <Button onClick={handleCreateTeam} disabled={isTeamCreating}>
+                <Button onClick={handleCreateTeam} disabled={isLoading}>
                     Create team
                 </Button>
             </div>

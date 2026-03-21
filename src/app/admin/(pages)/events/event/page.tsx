@@ -1,5 +1,6 @@
 "use client";
 
+import { useCreateEventMutation, useDeleteEventMutation, useGetEventByIdQuery, useUpdateEventMutation } from "@/app/admin/features/event/eventApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TextArea } from "@/components/ui/textArea";
@@ -32,6 +33,9 @@ export default function EventAddPage() {
   });
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
+  const [createEvent, { isLoading: isCreatingEvent }] = useCreateEventMutation();
+  const [deleteEvent] = useDeleteEventMutation();
+  const [updateEvent] = useUpdateEventMutation();
 
   // Handle form changes
   const handleChange = (e: string, field: string) => {
@@ -41,21 +45,17 @@ export default function EventAddPage() {
     });
   };
 
-  // fetch the event
+  const { isFetching, data } = useGetEventByIdQuery(eventId, {
+    refetchOnMountOrArgChange: false
+  })
+  const eventData = data?.data
+
   useEffect(() => {
-    (async () => {
-      if (!eventId || tab != "edit") return;
-      try {
-        await axios.get(`/api/event/get?id=${eventId}`).then((res) => {
-          const data = res.data.data;
-          if (data) setFormData(data);
-          setPreviewUrl(data?.thumbnail);
-        });
-      } catch (error) {
-        toast.error("Faild to fetch event");
-      }
-    })();
-  }, [tab, eventId]);
+    if (!eventId || tab != "edit") return;
+    if (eventData) setFormData(eventData)
+    setPreviewUrl(eventData?.thumbnail);
+  }, [eventId, tab, eventData])
+
 
   // handle preview image
   useEffect(() => {
@@ -72,24 +72,26 @@ export default function EventAddPage() {
         thumbnail: file || formData.thumbnail,
       };
       const payLoads = objectToFormData(data);
-      await axios
-        .post("/api/event/create", payLoads, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
+      
+      await createEvent(payLoads).unwrap()
         .then(() => {
           toast.success("Event created successfully");
           router.push("/admin/events");
         });
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message);
+    } catch (error: any) {
+      console.log("RTK Error:", error);
+
+      if (error?.data?.message) {
+        toast.error(error.data.message);
+      } else if (error?.error) {
+        toast.error(error.error);
+      } else {
+        toast.error("Something went wrong");
       }
     }
   };
 
-  // create new event
+  // edit event
   const handleEditEvent = async () => {
     try {
       const data = {
@@ -98,12 +100,8 @@ export default function EventAddPage() {
         thumbnail: file || formData.thumbnail,
       };
       const payLoads = objectToFormData(data);
-      await axios
-        .patch("/api/event/update", payLoads, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
+      
+      await updateEvent(payLoads).unwrap()
         .then(() => {
           toast.success("Event updated successfully");
         });
@@ -129,10 +127,11 @@ export default function EventAddPage() {
   const handleDeleteEvent = async () => {
     try {
       if (!eventId) return;
-      await axios.delete(`/api/event/remove?id=${eventId}`).then(() => {
-        toast.success("Event removed successfully");
-        router.push(`/admin/events`);
-      });
+      await deleteEvent(eventId).unwrap()
+        .then(() => {
+          toast.success("Event removed successfully");
+          router.push(`/admin/events`);
+        });
     } catch (error) {
       if (axios.isAxiosError(error)) {
         toast.error(error.response?.data?.message);

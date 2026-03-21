@@ -5,23 +5,13 @@ import axios from "axios";
 import { Calendar, Pencil, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { useGetEventsQuery } from "../../features/event/eventApi";
 
 export default function EventAdminPage() {
   const router = useRouter();
-  // get events
-  const [eventList, setEventList] = useState<Record<string, any>[] | null>(
-    null,
-  );
-  useEffect(() => {
-    (async () => {
-      try {
-        await axios.get("/api/event/get-all").then((res) => {
-          const list = res.data.data;
-          setEventList(list);
-        });
-      } catch (error) {}
-    })();
-  }, []);
+
+  const { isFetching, data } = useGetEventsQuery()
+  const eventList = data?.data ?? [];
   return (
     <div>
       <div className="mb-10">
@@ -43,7 +33,7 @@ export default function EventAdminPage() {
           {eventList?.length === 0 && <div>No events found!</div>}
           {eventList === null && <div>Loading...</div>}
           <div className="space-y-2">
-            {eventList?.map((event, index) => (
+            {eventList?.map((event: any, index: number) => (
               <div className="space-y-2" key={index}>
                 <div className="p-2 bg-gray-200 rounded-xl flex items-center gap-3 justify-between">
                   <div className="flex items-center gap-3">

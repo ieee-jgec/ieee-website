@@ -1,8 +1,10 @@
 "use client";
 
+import { useAddUserMutation } from '@/app/admin/features/user/userApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
@@ -12,6 +14,7 @@ export default function CreateUserPage() {
     const router = useRouter();
     const roleOptions = ["admin", "member"];
     const [formData, setFormData] = useState({ userName: "", email: "", password: "", role: "" });
+    const [addUser, { isLoading: isCreating }] = useAddUserMutation();
 
     // Handle form changes
     const handleChange = (e: string, field: string) => {
@@ -22,23 +25,19 @@ export default function CreateUserPage() {
     };
 
     // handle create user
-    const [isCreating, setIsCreating] = useState(false);
+    // const [isCreating, setIsCreating] = useState(false);
     const createUser = async () => {
         try {
-            setIsCreating(true);
-            await axios.post("/api/user/register", formData)
+            // setIsCreating(true);
+            await addUser(formData).unwrap()
                 .then(() => {
                     router.push("/admin/access-control");
                     toast.success("User created successfully");
                 })
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                toast.error(error.response?.data?.message)
-            } else {
-                toast.error("Something went wrong")
-            }
+        } catch (error: any) {
+            toast.error(error.data?.message || "something went wrong")
         }
-        setIsCreating(false);
+        // setIsCreating(false);
     };
 
     return (

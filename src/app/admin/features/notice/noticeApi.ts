@@ -1,0 +1,57 @@
+import { baseApi } from "../baseApi";
+
+export const noticeApi = baseApi.injectEndpoints({
+    overrideExisting: true,
+    endpoints(build) {
+        return {
+
+            getNotices: build.query<any, void>({
+                query: () => `/notice/get-list`,
+                providesTags: (result) => result?.notices ? [...result.notices.map(({ id }: { id: any }) => ({ type: "Notice", id })),
+                { type: "Notice", id: "List" }
+                ]
+                    : [{ type: "Notice", id: "List" }]
+            }),
+
+            getNoticeById: build.query({
+                query: (noticeId) => `/notice/get?id=${noticeId}`,
+                providesTags: (result, error, noticeId) => [
+                    { type: "Notice", id: noticeId }
+                ],
+            }),
+
+            createNotice: build.mutation({
+                query(body) {
+                    return {
+                        url: "/notice/create",
+                        method: "POST",
+                        body
+                    }
+                },
+                invalidatesTags: ["Notice"]
+            }),
+
+            deleteNotice: build.mutation({
+                query: (noticeId) => ({
+                    url: `/notice/remove?id=${noticeId}`,
+                    method: "DELETE"
+                }),
+                invalidatesTags: (result, error, noticeId) => [
+                    { type: "Notice", id: noticeId },
+                    { type: "Notice", id: "List" }
+                ],
+            }),
+
+            updateNotice: build.mutation({
+                query: ({ noticeId, body }) => ({
+                    url: `/notice/update?id=${noticeId}`,
+                    method: "PATCH",
+                    body
+                }),
+                invalidatesTags: ["Notice"]
+            })
+        }
+    }
+});
+
+export const { useGetNoticesQuery, useGetNoticeByIdQuery, useCreateNoticeMutation, useDeleteNoticeMutation, useUpdateNoticeMutation } = noticeApi;

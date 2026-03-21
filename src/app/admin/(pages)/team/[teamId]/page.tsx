@@ -1,5 +1,6 @@
 "use client";
 
+import { useDeleteTeamMutation, useGetMemberListQuery, useGetTeamByIdQuery, useUpdateTeamMutation } from '@/app/admin/features/team/teamApi';
 import { Avatar } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -16,35 +17,35 @@ export default function TeamEditPage() {
     const params = useParams();
     const teamId = params.teamId;
 
+    const [deleteTeam, { isLoading: isDeletingTeam }] = useDeleteTeamMutation();
+    const [updateTeam, { isLoading: isUpdatingTeam }] = useUpdateTeamMutation();
+    const isTeamUpdating = isDeletingTeam || isUpdatingTeam
 
-    const [isTeamUpdating, setIsTeamUpdating] = useState(false);
+    // fetch team
+    const { data: teamData } = useGetTeamByIdQuery(teamId, {
+        refetchOnMountOrArgChange: false
+    });
+    const teamDataInfo = teamData?.data ?? {};
+
     const [teamName, setTeamName] = useState("");
     const [teamType, setTeamType] = useState("");
-    // fetch team
-    useEffect(() => {
-        (async () => {
-            if (!teamId) return;
-            try {
-                await axios.get(`/api/team/get?id=${teamId}`)
-                    .then(res => {
-                        const data = res.data.data;
-                        if (data) {
-                            setTeamName(data?.title);
-                            setTeamType(data?.teamType);
-                        }
-                    })
-            } catch (error) {
 
-            }
-        })();
-    }, [teamId]);
+    useEffect(() => {
+        if (teamData?.data) {
+            setTeamName(teamData?.data.title)
+            setTeamType(teamData?.data.teamType)
+        }
+    }, [teamData])
 
     // update team details
     const handleTeamUpdate = async () => {
         try {
             if (!(teamName.trim()) || !teamType || !teamId) return;
-            setIsTeamUpdating(true);
-            await axios.patch("/api/team/update", { teamId, teamName, teamType })
+            await updateTeam({
+                teamId,
+                teamName,
+                teamType
+            }).unwrap()
                 .then(res => {
                     toast.success("Team details updated.")
                 })
@@ -53,41 +54,31 @@ export default function TeamEditPage() {
                 toast.error(error.response?.data?.message);
             }
         }
-        setIsTeamUpdating(false);
     }
 
     const handleTeamRemove = async () => {
         try {
-            setIsTeamUpdating(true);
-            await axios.delete(`/api/team/remove?id=${teamId}`)
+            await deleteTeam(teamId).unwrap()
                 .then(() => {
                     toast.success("Team removed successfully");
-                    router.push("/admin/team");
+                    router.back();
                 })
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                toast.error(error.response?.data?.message);
+        } catch (error: any) {
+            console.log("RTK Error:", error);
+
+            if (error?.data?.message) {
+                toast.error(error.data.message);
+            } else if (error?.error) {
+                toast.error(error.error);
+            } else {
+                toast.error("Something went wrong");
             }
         }
-        setIsTeamUpdating(false);
     }
 
     // get team member list
-    const [teamMembers, setTeamMembers] = useState<Array<any>|null>(null);
-    useEffect(() => {
-        (async () => {
-            try {
-                if (!teamId) return;
-                await axios.get(`/api/team/member/get-list?teamId=${teamId}`)
-                    .then(res => {
-                        const data = res.data.data;
-                        setTeamMembers(data || []);
-                    })
-            } catch (error) {
-
-            }
-        })();
-    }, [teamId]);
+    const { isLoading, isFetching, data: memberData } = useGetMemberListQuery(teamId);
+    const teamMembers = memberData?.data ?? [];
 
     return (
         <div>
@@ -125,13 +116,16 @@ export default function TeamEditPage() {
                         </Button>
                     </div>
                     <div className='space-y-2'>
-                        {teamMembers?.length === 0 && (
+                        {!isFetching && !teamMembers?.length && (
                             <p className='text-gray-600'>No members found.</p>
                         )}
-                        {teamMembers === null && (
+                        {isLoading && (
                             <p className='text-gray-600'>Loading...</p>
                         )}
-                        {teamMembers?.map((member) => (
+                        {!isLoading && isFetching && (
+                            <p className='text-gray-600'>Fetching...</p>
+                        )}
+                        {teamMembers?.map((member: any) => (
                             <div key={member?._id} className='flex items-center justify-between bg-gray-200 p-3 rounded-xl'>
                                 <div className='flex items-center gap-3'>
                                     <Avatar src={member?.avatar} />

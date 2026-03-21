@@ -5,23 +5,15 @@ import axios from "axios";
 import { Calendar, Pencil, Pin, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useGetNoticesQuery } from "../../features/notice/noticeApi";
 
 export default function AdminNoticePage() {
   const router = useRouter();
   // get notice
-  const [noticeList, setNoticeList] = useState<Record<string, any>[] | null>(
-    null,
-  );
-  useEffect(() => {
-    (async () => {
-      try {
-        await axios.get("/api/notice/get-list").then((res) => {
-          const list = res.data.data;
-          setNoticeList(list);
-        });
-      } catch (error) {}
-    })();
-  }, []);
+  const { isFetching, data } = useGetNoticesQuery(undefined, {
+    refetchOnMountOrArgChange: false
+  });
+  const noticeList = data?.data ?? [];
   return (
     <div>
       <div className="mb-10">
@@ -39,11 +31,11 @@ export default function AdminNoticePage() {
           </Button>
         </div>
         <div>
-          <h5 className="text-xl mb-3">Events</h5>
+          <h5 className="text-xl mb-3">Notices</h5>
           {noticeList?.length === 0 && <div>No notices found!</div>}
           {noticeList === null && <div>Loading...</div>}
           <div className="space-y-2">
-            {noticeList?.map((notice, index) => (
+            {noticeList?.map((notice: any, index: number) => (
               <div className="space-y-2" key={index}>
                 <div className="p-2 bg-gray-200 rounded-xl flex items-center gap-3 justify-between">
                   <div className="flex items-center gap-3">
