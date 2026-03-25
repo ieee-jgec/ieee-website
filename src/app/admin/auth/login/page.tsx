@@ -6,7 +6,7 @@ import { useAuth } from '@/context/authContext'
 import React, { useState } from 'react'
 
 export default function AdminLoginPage() {
-    const { login, isLogging } = useAuth();
+    const { login, isLoggingIn } = useAuth();
     const [formData, setFormData] = useState({ email: "", password: "" });
     const handleLogin = (e: any) => {
         e.preventDefault();
@@ -22,11 +22,11 @@ export default function AdminLoginPage() {
                     className='space-y-6'
                     onSubmit={handleLogin}
                 >
-                    <Input placeholder='Enter email' type='email' required onChange={e => setFormData(prev => ({ ...prev, email: e }))} disabled={isLogging} />
-                    <Input placeholder='Enter password' type='password' required onChange={e => setFormData(prev => ({ ...prev, password: e }))} disabled={isLogging} />
+                    <Input placeholder='Enter email' type='email' required onChange={e => setFormData(prev => ({ ...prev, email: e }))} disabled={isLoggingIn} />
+                    <Input placeholder='Enter password' type='password' required onChange={e => setFormData(prev => ({ ...prev, password: e }))} disabled={isLoggingIn} />
                 </form>
 
-                <Button className='w-full justify-center' onClick={handleLogin} disabled={isLogging}>
+                <Button className='w-full justify-center' onClick={handleLogin} disabled={isLoggingIn}>
                     Login
                 </Button>
             </div>
