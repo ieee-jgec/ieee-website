@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PopupBox } from "@/components/ui/popupBox";
 import { Select } from "@/components/ui/select";
-import { updateTeamMember } from "@/lib/controllers/team.controller";
 import { objectToFormData } from "@/lib/utils/formdata-converter";
 import axios from "axios";
 import { Camera } from "lucide-react";
@@ -90,6 +89,7 @@ export default function MemberAddPage() {
         linkedin: memberByIdData.socialMedia?.linkedin || "",
         instagram: memberByIdData.socialMedia?.instagram || "",
       });
+      setPreviewUrl(memberByIdData?.avatar)
     }
   }, [memberById]);
 

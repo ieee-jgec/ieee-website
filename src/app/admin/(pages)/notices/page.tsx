@@ -1,10 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import axios from "axios";
 import { Calendar, Pencil, Pin, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { useGetNoticesQuery } from "../../features/notice/noticeApi";
 
 export default function AdminNoticePage() {
@@ -33,7 +31,7 @@ export default function AdminNoticePage() {
         <div>
           <h5 className="text-xl mb-3">Notices</h5>
           {noticeList?.length === 0 && <div>No notices found!</div>}
-          {noticeList === null && <div>Loading...</div>}
+          {isFetching && <div>Loading...</div>}
           <div className="space-y-2">
             {noticeList?.map((notice: any, index: number) => (
               <div className="space-y-2" key={index}>

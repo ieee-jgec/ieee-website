@@ -4,10 +4,8 @@ import { useAddUserMutation } from '@/app/admin/features/user/userApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select';
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { toast } from 'react-toastify';
 
 export default function CreateUserPage() {
@@ -25,10 +23,8 @@ export default function CreateUserPage() {
     };
 
     // handle create user
-    // const [isCreating, setIsCreating] = useState(false);
     const createUser = async () => {
         try {
-            // setIsCreating(true);
             await addUser(formData).unwrap()
                 .then(() => {
                     router.push("/admin/access-control");
@@ -37,7 +33,6 @@ export default function CreateUserPage() {
         } catch (error: any) {
             toast.error(error.data?.message || "something went wrong")
         }
-        // setIsCreating(false);
     };
 
     return (

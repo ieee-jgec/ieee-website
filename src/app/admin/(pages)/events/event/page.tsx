@@ -1,11 +1,15 @@
 "use client";
 
-import { useCreateEventMutation, useDeleteEventMutation, useGetEventByIdQuery, useUpdateEventMutation } from "@/app/admin/features/event/eventApi";
+import {
+  useCreateEventMutation,
+  useDeleteEventMutation,
+  useGetEventByIdQuery,
+  useUpdateEventMutation,
+} from "@/app/admin/features/event/eventApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TextArea } from "@/components/ui/textArea";
 import { objectToFormData } from "@/lib/utils/formdata-converter";
-import axios from "axios";
 import { ImagePlus } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -33,7 +37,8 @@ export default function EventAddPage() {
   });
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
-  const [createEvent, { isLoading: isCreatingEvent }] = useCreateEventMutation();
+  const [createEvent, { isLoading: isCreatingEvent }] =
+    useCreateEventMutation();
   const [deleteEvent] = useDeleteEventMutation();
   const [updateEvent] = useUpdateEventMutation();
 
@@ -46,16 +51,15 @@ export default function EventAddPage() {
   };
 
   const { isFetching, data } = useGetEventByIdQuery(eventId, {
-    refetchOnMountOrArgChange: false
-  })
-  const eventData = data?.data
+    refetchOnMountOrArgChange: false,
+  });
+  const eventData = data?.data;
 
   useEffect(() => {
     if (!eventId || tab != "edit") return;
-    if (eventData) setFormData(eventData)
+    if (eventData) setFormData(eventData);
     setPreviewUrl(eventData?.thumbnail);
-  }, [eventId, tab, eventData])
-
+  }, [eventId, tab, eventData]);
 
   // handle preview image
   useEffect(() => {
@@ -72,8 +76,9 @@ export default function EventAddPage() {
         thumbnail: file || formData.thumbnail,
       };
       const payLoads = objectToFormData(data);
-      
-      await createEvent(payLoads).unwrap()
+
+      await createEvent(payLoads)
+        .unwrap()
         .then(() => {
           toast.success("Event created successfully");
           router.push("/admin/events");
@@ -100,41 +105,50 @@ export default function EventAddPage() {
         thumbnail: file || formData.thumbnail,
       };
       const payLoads = objectToFormData(data);
-      
-      await updateEvent(payLoads).unwrap()
+
+      await updateEvent(payLoads)
+        .unwrap()
         .then(() => {
           toast.success("Event updated successfully");
         });
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message);
+    } catch (error: any) {
+      console.log("RTK Error:", error);
+
+      if (error?.data?.message) {
+        toast.error(error.data.message);
+      } else if (error?.error) {
+        toast.error(error.error);
+      } else {
+        toast.error("Something went wrong");
       }
     }
   };
 
   // handle button click
-  const [isLoading, setIsLoading] = useState(false);
   const handleButtonClick = async () => {
-    setIsLoading(true);
-
     if (tab === "create") await handleCreateNewEvent();
     else if (tab === "edit" && eventId) await handleEditEvent();
-
-    setIsLoading(false);
   };
 
   // delete event
   const handleDeleteEvent = async () => {
     try {
       if (!eventId) return;
-      await deleteEvent(eventId).unwrap()
+      await deleteEvent(eventId)
+        .unwrap()
         .then(() => {
           toast.success("Event removed successfully");
           router.push(`/admin/events`);
         });
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message);
+    } catch (error: any) {
+      console.log("RTK Error:", error);
+
+      if (error?.data?.message) {
+        toast.error(error.data.message);
+      } else if (error?.error) {
+        toast.error(error.error);
+      } else {
+        toast.error("Something went wrong");
       }
     }
   };
@@ -159,7 +173,7 @@ export default function EventAddPage() {
                 id="event-title"
                 value={formData.title}
                 onChange={(e) => handleChange(e, "title")}
-                disabled={isLoading}
+                disabled={isCreatingEvent}
               />
             </div>
             <div>
@@ -171,7 +185,7 @@ export default function EventAddPage() {
                 id="event-description"
                 value={formData.description}
                 onChange={(e) => handleChange(e, "description")}
-                disabled={isLoading}
+                disabled={isCreatingEvent}
               />
             </div>
             <div className="grid grid-cols-2 gap-2">
@@ -185,7 +199,7 @@ export default function EventAddPage() {
                   className="form-control"
                   value={formData.date}
                   onChange={(e) => handleChange(e, "date")}
-                  disabled={isLoading}
+                  disabled={isCreatingEvent}
                 />
               </div>
               <div>
@@ -198,7 +212,7 @@ export default function EventAddPage() {
                   className="form-control"
                   value={formData.time}
                   onChange={(e) => handleChange(e, "time")}
-                  disabled={isLoading}
+                  disabled={isCreatingEvent}
                 />
               </div>
             </div>
@@ -211,7 +225,7 @@ export default function EventAddPage() {
                 id="location"
                 value={formData.location}
                 onChange={(e) => handleChange(e, "location")}
-                disabled={isLoading}
+                disabled={isCreatingEvent}
               />
             </div>
             <div>
@@ -223,7 +237,7 @@ export default function EventAddPage() {
                 id="event-type"
                 value={formData.eventType}
                 onChange={(e) => handleChange(e, "eventType")}
-                disabled={isLoading}
+                disabled={isCreatingEvent}
               />
             </div>
             <div>
@@ -235,7 +249,7 @@ export default function EventAddPage() {
                 id="reg-link"
                 value={formData.navLink}
                 onChange={(e) => handleChange(e, "navLink")}
-                disabled={isLoading}
+                disabled={isCreatingEvent}
               />
             </div>
             <div className="grid grid-cols-2 gap-2">
@@ -249,7 +263,7 @@ export default function EventAddPage() {
                   className="form-control"
                   value={formData.fee}
                   onChange={(e) => handleChange(e, "fee")}
-                  disabled={isLoading}
+                  disabled={isCreatingEvent}
                   placeholder="Enter event fee"
                 />
               </div>
@@ -263,7 +277,7 @@ export default function EventAddPage() {
                   className="form-control"
                   value={formData.deadline}
                   onChange={(e) => handleChange(e, "deadline")}
-                  disabled={isLoading}
+                  disabled={isCreatingEvent}
                 />
               </div>
             </div>
@@ -277,7 +291,7 @@ export default function EventAddPage() {
                 id="event-image"
                 className="hidden"
                 onChange={(e) => setFile(e.target.files![0])}
-                disabled={isLoading}
+                disabled={isCreatingEvent}
               />
             </div>
             {previewUrl && (
@@ -291,7 +305,7 @@ export default function EventAddPage() {
           {tab !== "create" && (
             <Button
               className="bg-red-400"
-              disabled={isLoading}
+              disabled={isCreatingEvent}
               onClick={handleDeleteEvent}
             >
               Remove event
@@ -300,13 +314,13 @@ export default function EventAddPage() {
           <Button
             variant="success"
             onClick={handleButtonClick}
-            disabled={isLoading}
+            disabled={isCreatingEvent}
           >
             {tab === "create"
-              ? isLoading
+              ? isCreatingEvent
                 ? "Creating..."
                 : "Create Event"
-              : isLoading
+              : isCreatingEvent
                 ? "Saving..."
                 : "Save Event"}
           </Button>

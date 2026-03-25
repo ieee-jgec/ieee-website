@@ -1,16 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import axios from "axios";
 import { Calendar, Pencil, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
 import { useGetEventsQuery } from "../../features/event/eventApi";
 
 export default function EventAdminPage() {
   const router = useRouter();
 
-  const { isFetching, data } = useGetEventsQuery()
+  const { isLoading, data } = useGetEventsQuery();
   const eventList = data?.data ?? [];
   return (
     <div>
@@ -31,7 +29,7 @@ export default function EventAdminPage() {
         <div>
           <h5 className="text-xl mb-3">Events</h5>
           {eventList?.length === 0 && <div>No events found!</div>}
-          {eventList === null && <div>Loading...</div>}
+          {isLoading && <div>Loading...</div>}
           <div className="space-y-2">
             {eventList?.map((event: any, index: number) => (
               <div className="space-y-2" key={index}>
