@@ -1,5 +1,6 @@
 "use client";
 
+import { useCreateNoticeMutation, useDeleteNoticeMutation, useGetNoticeByIdQuery, useUpdateNoticeMutation } from "@/app/admin/features/notice/noticeApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TextArea } from "@/components/ui/textArea";
@@ -28,6 +29,12 @@ export default function EventAddPage() {
   });
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
+  const { data: noticeById } = useGetNoticeByIdQuery(noticeId);
+  const noticeByIdData = noticeById?.data;
+
+  const [createNotice] = useCreateNoticeMutation();
+  const [deleteNotice] = useDeleteNoticeMutation();
+  const [updateNotice] = useUpdateNoticeMutation()
 
   // Handle form changes
   const handleChange = (e: any, field: string) => {
@@ -42,16 +49,14 @@ export default function EventAddPage() {
     (async () => {
       if (!noticeId || tab != "edit") return;
       try {
-        await axios.get(`/api/notice/get?id=${noticeId}`).then((res) => {
-          const data = res.data.data;
-          if (data) setFormData(data);
-          setPdfUrl(data?.pdfUrl);
-        });
+        if (noticeByIdData) setFormData(noticeByIdData);
+        setPdfUrl(noticeByIdData?.pdfUrl);
+
       } catch (error) {
         toast.error("Faild to fetch notice");
       }
     })();
-  }, [tab, noticeId]);
+  }, [noticeById]);
 
   // handle preview image
   useEffect(() => {
@@ -68,24 +73,26 @@ export default function EventAddPage() {
         noticePdf: file,
       };
       const payLoads = objectToFormData(data);
-      await axios
-        .post("/api/notice/create", payLoads, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
+     
+      await createNotice(payLoads).unwrap()
         .then(() => {
           toast.success("Notice created successfully");
           router.push("/admin/notices");
         });
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message);
+    } catch (error: any) {
+      console.log("RTK Error:", error);
+
+      if (error?.data?.message) {
+        toast.error(error.data.message);
+      } else if (error?.error) {
+        toast.error(error.error);
+      } else {
+        toast.error("Something went wrong");
       }
     }
   };
 
-  // create new notice
+  // edit notice
   const handleEditNotice = async () => {
     try {
       const data = {
@@ -93,18 +100,20 @@ export default function EventAddPage() {
         noticePdf: file || formData.pdfUrl,
       };
       const payLoads = objectToFormData(data);
-      await axios
-        .patch(`/api/notice/update?id=${noticeId}`, payLoads, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
+      
+      await updateNotice({ noticeId, body: payLoads }).unwrap()
         .then(() => {
           toast.success("Notice updated successfully");
         });
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message);
+    } catch (error: any) {
+      console.log("RTK Error:", error);
+
+      if (error?.data?.message) {
+        toast.error(error.data.message);
+      } else if (error?.error) {
+        toast.error(error.error);
+      } else {
+        toast.error("Something went wrong");
       }
     }
   };
@@ -124,10 +133,11 @@ export default function EventAddPage() {
   const handleDeleteNotice = async () => {
     try {
       if (!noticeId) return;
-      await axios.delete(`/api/notice/remove?id=${noticeId}`).then(() => {
-        toast.success("Notice removed successfully");
-        router.push(`/admin/notices`);
-      });
+      await deleteNotice(noticeId).unwrap()
+        .then(() => {
+          toast.success("Notice removed successfully");
+          router.push(`/admin/notices`);
+        });
     } catch (error) {
       if (axios.isAxiosError(error)) {
         toast.error(error.response?.data?.message);

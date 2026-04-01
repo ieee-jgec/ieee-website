@@ -1,11 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { formatDateStr, to12Hour } from "@/lib/utils/formatDate";
+import { formatDateStr } from "@/lib/utils/formatDate";
 import axios from "axios";
 import clsx from "clsx";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { toast } from "react-toastify";
+import { useGetMessagesQuery } from "../../features/message/messageApi";
 
 const notificationOptions = [
   {
@@ -28,25 +29,11 @@ const notificationOptions = [
 
 export default function AdminDashboardPage() {
   const [filter, setFilter] = useState("all");
-
   // get messages based on filter
-  const [messageList, setMessageList] = useState<Record<string, any>[] | null>(
-    null
-  );
-
-  useEffect(() => {
-    (async () => {
-      try {
-        setMessageList(null);
-        await axios
-          .get(`/api/message/get-list?filter=${filter}`)
-          .then((res) => {
-            const data = res.data.data;
-            if (data) setMessageList(data);
-          });
-      } catch (error) {}
-    })();
-  }, [filter]);
+  const { isFetching, data } = useGetMessagesQuery(filter, {
+    refetchOnMountOrArgChange: false,
+  });
+  const messageList = data?.data ?? [];
 
   return (
     <div>
@@ -63,7 +50,7 @@ export default function AdminDashboardPage() {
               key={item.key}
               className={clsx(
                 "py-1 px-2 bg-gray-400/30 rounded-lg cursor-pointer",
-                filter === item.key && "!bg-blue-400/70"
+                filter === item.key && "!bg-blue-400/70",
               )}
               onClick={() => setFilter(item.key)}
             >
@@ -72,11 +59,14 @@ export default function AdminDashboardPage() {
           ))}
         </ul>
         <div className="space-y-3">
-          {!messageList && <p>Loading messages...</p>}
-          {messageList?.length === 0 && <p>No messages found!</p>}
-          {messageList?.map((message: any, index: number) => (
-            <MessageComponent key={index} message={message} />
-          ))}
+          {isFetching && <p>Loading messages...</p>}
+          {!isFetching && messageList?.length === 0 && (
+            <p>No messages found!</p>
+          )}
+          {!isFetching &&
+            messageList?.map((message: any, index: number) => (
+              <MessageComponent key={index} message={message} />
+            ))}
         </div>
       </div>
     </div>
@@ -103,7 +93,7 @@ const MessageComponent = ({ message }: { message: Record<string, any> }) => {
     <div
       className={clsx(
         "bg-blue-200 p-3 rounded-xl",
-        mark.isViewed && "bg-gray-300"
+        mark.isViewed && "bg-gray-300",
       )}
     >
       <div className="p-2 bg-blue-300/40 rounded-xl mb-4">
